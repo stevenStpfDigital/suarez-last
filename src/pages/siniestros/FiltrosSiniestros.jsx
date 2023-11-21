@@ -800,7 +800,7 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
                           <div className="row align-items-center">
                             <div className="col-1">
                               <UqaiField
-                                name="checkFcEvento"
+                                name="checkFcRecepcion"
                                 component={CheckDbroker}
                               />
                             </div>
@@ -820,7 +820,7 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
                           <div className="row align-items-center">
                             <div className="col-1">
                               <UqaiField
-                                name="checkFcEvento"
+                                name="checkFcGestion"
                                 component={CheckDbroker}
                               />
                             </div>
