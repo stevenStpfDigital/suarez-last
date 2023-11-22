@@ -45,7 +45,7 @@ export const Estados = ({ estado }) => {
     };
 
     axios.post(`${routesVam}/nuevoSeguimiento`, nuevoSiniestro).then((res) => {
-      console.log("Res: ", res);
+     // console.log("Res: ", res);
       actions.setSubmitting(false);
       setAux(false);
     });

@@ -169,7 +169,7 @@ export const FiltrosSiniestros = () => {
         { ID: "%", SUBAREA: "TODOS" },
         ...res.data, // Mantén los elementos existentes
       ];
-      console.log("PLACAS: ", dataWithTodos);
+      //console.log("PLACAS: ", dataWithTodos);
       setPlacas(dataWithTodos);
     });
   };
@@ -242,9 +242,9 @@ export const FiltrosSiniestros = () => {
       checkFcGestion,
       ...rest
     } = queryDbroker;
-    console.log("QUERY: ", rest);
+    //console.log("QUERY: ", rest);
     axios.post(`${routesVam}/Siniestros`, rest).then((res) => {
-      console.log("SINIESTROS RESPONSE: ", res);
+      //console.log("SINIESTROS RESPONSE: ", res);
       setData({
         data: res.data || [],
         // data: res.data.slice(0, 1) || [],
@@ -484,7 +484,7 @@ const getDiagnosticoByInputValue = async (inputValue) => {
         ...result,
       }));
 
-      console.log("FORMATED DATA: ", formatedData);
+      //console.log("FORMATED DATA: ", formatedData);
 
       return formatedData;
       // Mostrar los resultados en el frontend
@@ -1104,7 +1104,7 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
         cdCliente: "%", //cdClienteAux
       };
       axios.post(`${routesVam}/placas`, obj).then((res) => {
-        console.log("RESPONSE PLACAS: ", res);
+       // console.log("RESPONSE PLACAS: ", res);
         setPlacaSelect(res.data);
       });
     }
@@ -1193,12 +1193,12 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
         res.data,
         sucursalProperties
       );
-      console.log(
-        "FILTERASEGURADORAS: ",
-        filterAseguradoras.included.length,
-        "Exlu_",
-        filterAseguradoras.excluded.length
-      );
+      // console.log(
+      //   "FILTERASEGURADORAS: ",
+      //   filterAseguradoras.included.length,
+      //   "Exlu_",
+      //   filterAseguradoras.excluded.length
+      // );
 
       setGroupedOptionsAseguradora([
         { label: "Producción", options: filterAseguradoras.included },
@@ -1222,8 +1222,8 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
   const searchDataPoliza = async (values) => {
     try {
       const response = await axios.post(`${routesVam}/polizas`, values);
-      console.log("VALUES: ", values);
-      console.log("RESPONSE POliza: ", response.data);
+      // console.log("VALUES: ", values);
+      // console.log("RESPONSE POliza: ", response.data);
       setResulSearch(response.data);
       setPolizaOptions(response.data);
       //return response.data;
@@ -1239,9 +1239,9 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
       const arrayDeObjetos = Object.keys(response.data).map((clave) => {
         return { value: response.data[clave], label: response.data[clave] };
       });
-      console.log("PARAMS_ ", values);
+      // console.log("PARAMS_ ", values);
 
-      console.log("RESPONSE RAW: ", response);
+      // console.log("RESPONSE RAW: ", response);
 
       setAseguradoOptions(arrayDeObjetos);
       //return response.data;
@@ -1252,10 +1252,10 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
   };
   const onSubmit = async (newValues, actions) => {
     const values = { ...newValues, fcRecepcion: null, fcEvento: null };
-    console.log("VALUES?_ ", values);
+    // console.log("VALUES?_ ", values);
     try {
       const response = await axios.post(`${routesVam}/nuevoSiniestro`, values);
-      console.log("SUCCES? : ", response);
+      //console.log("SUCCES? : ", response);
       setResultNewSiniestro(true);
     } catch (error) {
       console.log("ERROR: ", error);
@@ -1439,7 +1439,7 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
                     onChange={(valueSelect) => {
                       setFieldValue("nmAsegurado", valueSelect.value);
                       if (valueSelect.__isNew__) {
-                        console.log("VALUE ASEGURADO: ", valueSelect.__isNew__);
+                        //console.log("VALUE ASEGURADO: ", valueSelect.__isNew__);
 
                         setFieldValue("cdAsegurado", 0);
                       } else {

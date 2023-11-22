@@ -28,7 +28,7 @@ const Usuarios = ({ usuario }) => {
     };
 
     axios.post(`${routesVam}/Usuarios/modificar`, usuarioUpdate).then((res) => {
-      console.log("RES SUCCESS: ", res);
+     // console.log("RES SUCCESS: ", res);
     });
     actions.setSubmitting(false);
     setAux(false);
