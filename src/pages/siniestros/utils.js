@@ -52,6 +52,8 @@ export const defaultNuevoSiniestro = () => {
     cdFactAseg: null,
     cdAnexo: null,
     nmRamo: null,
+    cdAsegurado:null,
+    cdDiagnostico:null
   };
 };
 

@@ -1237,11 +1237,11 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
       const response = await axios.post(`${routesVam}/Asegurados`, values);
 
       const arrayDeObjetos = Object.keys(response.data).map((clave) => {
-        return { [clave]: response.data[clave] };
+        return { value: response.data[clave], label: response.data[clave] };
       });
       console.log("PARAMS_ ", values);
 
-      console.log("RESPONSE Asegurados: ", arrayDeObjetos);
+      console.log("RESPONSE RAW: ", response);
 
       setAseguradoOptions(arrayDeObjetos);
       //return response.data;
@@ -1401,6 +1401,7 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
                       setFieldValue("poliza", valueSelect.POLIZA);
                       setFieldValue("cdFactAseg", valueSelect.FACT_ASEG);
                       setFieldValue("cdAnexo", valueSelect.ANEXO);
+                      setFieldValue("cdSucursal", valueSelect.CD_COMPANIA);
 
                       const sucursalObj = sucursalData.filter(
                         (item) => item.ID === valueSelect.CD_COMPANIA
@@ -1433,10 +1434,18 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
                   <CreatableSelect
                     placeholder="Asegurados"
                     options={aseguradoOptions}
-                    getOptionLabel={(option) => option.asegurado}
-                    getOptionValue={(option) => option.asegurado}
+                    // getOptionLabel={(option) => option.asegurado}
+                    // getOptionValue={(option) => option.asegurado}
                     onChange={(valueSelect) => {
-                      setFieldValue("nmAsegurado", valueSelect.asegurado);
+                      setFieldValue("nmAsegurado", valueSelect.value);
+                      if (valueSelect.__isNew__) {
+                        console.log("VALUE ASEGURADO: ", valueSelect.__isNew__);
+
+                        setFieldValue("cdAsegurado", 0);
+                      } else {
+                        setFieldValue("cdAsegurado", valueSelect.value);
+                      }
+                      // console.log("VALUE ASEGURADO: ", valueSelect);
                     }}
                   />
                 </div>
@@ -1537,6 +1546,7 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
                     loadOptions={loadOptionsNewDiagnostico}
                     onChange={(valueSelect) => {
                       setFieldValue("tpDiagnostico", valueSelect.value);
+                      setFieldValue("cdDiagnostico", valueSelect.value);
                       setFieldValue("nmDiagnostico", valueSelect.label);
                       set0(valueSelect);
                     }}
