@@ -26,7 +26,6 @@ export const Estados = ({ estado }) => {
   );
   useEffect(() => {
     if (estadoObj.length > 0) {
-    
       set3(estadoObj);
     }
   }, [siniestrosData]);
@@ -45,7 +44,6 @@ export const Estados = ({ estado }) => {
       cd_estado_siniestro: newValues.cd_estado_siniestro,
     };
 
-    console.log("NUEVO SINIESTRO: ", nuevoSiniestro);
     axios.post(`${routesVam}/nuevoSeguimiento`, nuevoSiniestro).then((res) => {
       console.log("Res: ", res);
       actions.setSubmitting(false);
@@ -68,15 +66,13 @@ export const Estados = ({ estado }) => {
         {({ resetForm, submitForm, setFieldValue, values, isSubmitting }) => (
           <div className="row ">
             <Select
-              className="col-6"
+              className={`col-6`}
               menuPortalTarget={document.body}
               value={v3}
-          
               options={siniestrosData}
               getOptionLabel={(option) => option.DSC_ESTADO}
               getOptionValue={(option) => option.CD_EST_SINIESTRO}
               onChange={(valueSelect) => {
-               
                 setFieldValue(
                   "cd_estado_siniestro",
                   valueSelect.CD_EST_SINIESTRO
@@ -86,6 +82,15 @@ export const Estados = ({ estado }) => {
                 // setValuePrioridad(valueSelect);
               }}
             />
+
+            {/* <div className="col-3">
+              <UqaiField
+                name="fc_inspecion"
+                placeholder="Ingrese Fecha"
+                component={UqaiCalendario}
+              />
+            </div> */}
+
             <div className="col-3">
               <UqaiField
                 type="text"
@@ -94,7 +99,6 @@ export const Estados = ({ estado }) => {
                 placeholder={"Observacion"}
               />
             </div>
-
             <div className="col-3">
               <UqaiField
                 type="text"
@@ -103,13 +107,7 @@ export const Estados = ({ estado }) => {
                 placeholder={"DD/MM/AAAA"}
               />
             </div>
-            {/* <div className="col-3">
-              <UqaiField
-                name="fc_inspecion"
-                placeholder="Ingrese Fecha"
-                component={UqaiCalendario}
-              />
-            </div> */}
+
             {aux && (
               <div className="row">
                 <button

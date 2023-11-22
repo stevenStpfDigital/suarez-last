@@ -52,6 +52,7 @@ export const FiltrosSiniestros = () => {
   );
   const [aseguradora, setAseguradora] = useState([]);
   const [aseguradoraSiniestro, setAseguradoraSiniestro] = useState([]);
+  const [tallerSiniestro, setTallerSiniestro] = useState([]);
   const [agentes, setAgentes] = useState([]);
   const [estSiniestro, setEstSiniestro] = useState([]);
   const [ramos, setRamos] = useState([]);
@@ -181,6 +182,7 @@ export const FiltrosSiniestros = () => {
       ];
 
       setTaller(dataWithTodos);
+      setTallerSiniestro(res.data);
     });
   };
 
@@ -245,6 +247,7 @@ export const FiltrosSiniestros = () => {
       console.log("SINIESTROS RESPONSE: ", res);
       setData({
         data: res.data || [],
+        // data: res.data.slice(0, 1) || [],
         loading: false,
         pageSize: 10,
       });
@@ -353,6 +356,7 @@ export const FiltrosSiniestros = () => {
                           aseguradora: aseguradoraSiniestro,
                           sucursal: sucursalSiniestro,
                           ramos: ramos,
+                          taller: tallerSiniestro,
                         }}
                       />
                     </>
@@ -1070,7 +1074,9 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
   const ramosData = useSelector((state) => state.ramos.value);
   const sucursalData = useSelector((state) => state.sucursal.value);
   const [v0, set0] = useState(null);
+  const [isVam, setIsVam] = useState(false);
 
+  const [resultNewSiniestro, setResultNewSiniestro] = useState(false);
   const aseguradoraProperties = ["ID", "CD_ASEGURADORA"];
   const ramoProperties = ["CD_RAMO", "CD_RAMO"];
   const sucursalProperties = ["ID", "CD_COMPANIA"];
@@ -1119,6 +1125,29 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
       searchDataAsegurados(newValues);
     }
   }, [cdSucursalAux, nombreRamoAux, valuePolizaSelect]);
+  useEffect(() => {
+    if (!nombreRamoAux) return;
+    const lowerRamo = nombreRamoAux.toLowerCase();
+
+    if (lowerRamo.includes("vida") || lowerRamo.includes("medica")) {
+      setIsVam(true);
+    } else {
+      setIsVam(false);
+    }
+  }, [nombreRamoAux]);
+  useEffect(() => {
+    // Aquí, cuando resultNewSiniestro se establece a verdadero, iniciamos el temporizador para restablecerlo a falso después de 3 segundos
+    if (resultNewSiniestro) {
+      const timeoutId = setTimeout(resetResult, 3000);
+
+      // Limpia el temporizador si el componente se desmonta antes de que se complete
+      return () => clearTimeout(timeoutId);
+    }
+  }, [resultNewSiniestro]);
+
+  const resetResult = () => {
+    setResultNewSiniestro(false);
+  };
 
   const filterByProperties = (item1, array2, propertys) =>
     array2.some((item2) => item1[propertys[0]] === item2[propertys[1]]);
@@ -1227,6 +1256,7 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
     try {
       const response = await axios.post(`${routesVam}/nuevoSiniestro`, values);
       console.log("SUCCES? : ", response);
+      setResultNewSiniestro(true);
     } catch (error) {
       console.log("ERROR: ", error);
     }
@@ -1294,6 +1324,7 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
                     getOptionValue={(option) => option.CD_RAMO}
                     onChange={(valueSelect) => {
                       setFieldValue("cdRamo", valueSelect.CD_RAMO);
+                      setFieldValue("nmRamo", valueSelect.NM_RAMO);
                       setCdRamoAux(valueSelect.CD_RAMO);
                       setNombreRamoAux(valueSelect.NM_RAMO);
                     }}
@@ -1405,10 +1436,23 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
                     getOptionLabel={(option) => option.asegurado}
                     getOptionValue={(option) => option.asegurado}
                     onChange={(valueSelect) => {
-                      setFieldValue("cdAsegurado", valueSelect.asegurado);
+                      setFieldValue("nmAsegurado", valueSelect.asegurado);
                     }}
                   />
                 </div>
+                {isVam && (
+                  <div className="col-2">
+                    <label className="form-label fw-bold text-secondary fs-7">
+                      Titular-Dependiente:
+                    </label>
+                    <UqaiField
+                      type="text"
+                      name={"cdAsegurado"}
+                      className={"form-control"}
+                      placeholder={"Titular-Dependiente"}
+                    />
+                  </div>
+                )}
 
                 {valuePolizaSelect && (
                   <>
@@ -1492,7 +1536,8 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
                     defaultOptions
                     loadOptions={loadOptionsNewDiagnostico}
                     onChange={(valueSelect) => {
-                      setFieldValue("cdDiagnostico", valueSelect.label);
+                      setFieldValue("tpDiagnostico", valueSelect.value);
+                      setFieldValue("nmDiagnostico", valueSelect.label);
                       set0(valueSelect);
                     }}
                   />
@@ -1512,7 +1557,7 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
                     }}
                   />
                 </div>
-                <div className="col-2">
+                {/* <div className="col-2">
                   <label className="form-label fw-bold text-secondary fs-7">
                     Taller:
                   </label>
@@ -1528,6 +1573,25 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
                       </option>
                     ))}
                   </UqaiField>
+                </div> */}
+                <div className="col-2">
+                  <label className="form-label fw-bold text-secondary fs-7">
+                    Taller:
+                  </label>
+
+                  <Select
+                    // value={v8}
+                    // defaultValue={selectsData.taller[0]}
+                    placeholder={"Taller"}
+                    options={selectsData.taller}
+                    getOptionLabel={(option) => option.DSC_TALLER}
+                    getOptionValue={(option) => option.CD_TALLER}
+                    onChange={(valueSelect) => {
+                      setFieldValue("cdTaller", valueSelect.CD_TALLER);
+                      //set8(valueSelect);
+                      // setValuePrioridad(valueSelect);
+                    }}
+                  />
                 </div>
                 <div className="d-flex justify-content-end col-12  mt-3  ">
                   <div className="d-flex col-3 justify-content-between ">
@@ -1553,6 +1617,11 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
             );
           }}
         </UqaiFormik>
+        {resultNewSiniestro && (
+          <div class=" d-flex justify-content-center">
+            <b>Respuesta exitosa</b>
+          </div>
+        )}
       </ModalBody>
     </Modal>
   );
@@ -1562,27 +1631,31 @@ export const ListObservaciones = ({ data, ...props }) => {
   const [list, setList] = useState([]);
   const [open, setOpen] = useState(false);
   const [newEstado, setNewEstado] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    console.log("INFO: ", data);
-    // try {
-    //   const response = axios.post(`${routesVam}/seguimientos`, data);
-    //   console.log("DATA: response: ", response.data);
-    // } catch (error) {
-    //   console.log("ERROR: ", error);
-    // }
-    axios
-      .post(`${routesVam}/seguimientos`, data)
-      .then((res) => {
-        res.data.FC_CREACION = moment(res.data.FC_CREACION)
+    const fetchData = async () => {
+      try {
+        const response = await axios.post(`${routesVam}/seguimientos`, data);
+        // console.log("RES OBSERVACION:", response.data);
+        response.data.FC_CREACION = moment(response.data.FC_CREACION)
           .locale("es")
           .format("DD/MM/YYYY");
-        setList(res.data);
-      })
-      .catch((error) => {
-        console.log("ERRORLIst : ", error);
-      });
-  }, []);
+        if (isLoading) {
+          setList(response.data);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.log("ERROR: ", error);
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      // console.log("UNMOUNTING COMPONENT ------------------>>>>>>>");
+    };
+  }, [data, isLoading]);
 
   const defineWidth = (length) => {
     if (length < 50) return "100%";
@@ -1637,7 +1710,7 @@ export const ListObservaciones = ({ data, ...props }) => {
                             width: "100%",
                             minWidth: defineWidth(x.OBSERVACIONES?.length),
                           }}
-                          value={x.OBSERVACIONES}
+                          value={x.OBSERVACIONES || ""}
                         />
                       </td>
                     </tr>

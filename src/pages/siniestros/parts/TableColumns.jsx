@@ -232,7 +232,7 @@ export const TableColumnsSiniestros = [
     accessor: "",
     id: "OBSERVACIONES_ESTADO",
     Cell: (row) => {
-      console.log("rowData: ", row);
+     
       return (
         <>
           <ListObservaciones
@@ -284,7 +284,13 @@ export const TableColumnsSiniestros = [
     Cell: (row) => {
       return (
         <>
-          <Usuarios usuario={{ usuario: row.original.CD_USUARIO }} />
+          <Usuarios
+            usuario={{
+              usuario: row.original.CD_USUARIO,
+              cd_reclamo: row.original.CD_RECLAMO,
+              cd_sucursal: row.original.CD_COMPANIA,
+            }}
+          />
         </>
       );
     },

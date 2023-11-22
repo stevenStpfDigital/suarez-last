@@ -42,14 +42,16 @@ export const defaultNuevoSiniestro = () => {
     cdRamo: null,
     poliza: null,
     fcEvento: firstDayMonth(),
-    cdAsegurado: null,
-    cdDiagnostico: null,
+    nmAsegurado: null,
+    tpDiagnostico: null,
+    nmDiagnostico: null,
     placa: null,
     cdTaller: null,
     usuario: "broker",
     cdRC: null,
     cdFactAseg: null,
     cdAnexo: null,
+    nmRamo: null,
   };
 };
 
@@ -121,3 +123,5 @@ export const AUX_CHECK_CONTROLLER = [
   "checkFcRecepcion",
   "checkFcGestion",
 ];
+
+

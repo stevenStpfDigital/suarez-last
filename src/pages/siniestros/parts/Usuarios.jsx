@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import UqaiFormik from "../../../components/UqaiFormik";
 import Select from "react-select";
 import { useSelector } from "react-redux";
+import axios from "axios";
 
 const routesVam = "http://10.147.20.248:3030/api";
 const Usuarios = ({ usuario }) => {
@@ -20,6 +21,15 @@ const Usuarios = ({ usuario }) => {
   }, [usuariosData]);
 
   const handleOnSubmit = (newValues, actions) => {
+    const usuarioUpdate = {
+      cdReclamo: usuario.cd_reclamo,
+      cdSucursal: usuario.cd_sucursal,
+      usuario: newValues.cdUsuario,
+    };
+
+    axios.post(`${routesVam}/Usuarios/modificar`, usuarioUpdate).then((res) => {
+      console.log("RES SUCCESS: ", res);
+    });
     actions.setSubmitting(false);
     setAux(false);
   };
