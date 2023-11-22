@@ -69,13 +69,8 @@ export const FiltrosSiniestros = () => {
   const form = useRef();
   const dispatch = useDispatch();
   useEffect(() => {
-    console.log("USE EFFECT");
-
     setNewQuery(defaultNuevoSiniestroFilter());
     setNewSiniestroValues(defaultNuevoSiniestro());
-
-    // getRamos();
-    // getEjecutivos();
 
     getAseguradora();
     getAgentes();
@@ -84,11 +79,8 @@ export const FiltrosSiniestros = () => {
     getSucursal();
     getUsuariosD();
     getSubArea();
-    // getPlacas();
-    getTallere();
-    //  getDiagnosticos();
-    // getDiagnostico();
-    // getTaller();
+
+    getTallers();
   }, []);
 
   const getAseguradora = () => {
@@ -180,17 +172,8 @@ export const FiltrosSiniestros = () => {
       setPlacas(dataWithTodos);
     });
   };
-  const getDiagnosticos = () => {
-    axios.get(`${routesVam}/Diagnosticos`).then((res) => {
-      const dataWithTodos = [
-        { CD_CAUSA_SIN: "%", NM_CAUSA: "TODOS" },
-        ...res.data, // Mantén los elementos existentes
-      ];
-      console.log("DIAGNOSTICO: ", dataWithTodos);
-      setDiagnostico(dataWithTodos);
-    });
-  };
-  const getTallere = () => {
+
+  const getTallers = () => {
     axios.get(`${routesVam}/talleres`).then((res) => {
       const dataWithTodos = [
         { CD_TALLER: "%", DSC_TALLER: "TODOS" },
@@ -460,7 +443,6 @@ function debounce(func, delay) {
 }
 
 const loadOptionsNew = debounce(async (inputValue, callback) => {
-  console.log("INPUTVALUE: ", inputValue);
   callback(await getContratantesByInputValue(inputValue));
 });
 const getContratantesByInputValue = async (inputValue) => {
@@ -472,6 +454,33 @@ const getContratantesByInputValue = async (inputValue) => {
         value: result.ID,
         label: `${result.NOMBRES} ${result.APELLIDOS || null}`,
       }));
+
+      return formatedData;
+      // Mostrar los resultados en el frontend
+    } catch (error) {
+      console.error("Error al obtener datos:", error);
+      return [];
+      // Manejar el error y mostrar un mensaje al usuario si es necesario
+    }
+  }
+};
+const loadOptionsNewDiagnostico = debounce(async (inputValue, callback) => {
+  callback(await getDiagnosticoByInputValue(inputValue));
+});
+const getDiagnosticoByInputValue = async (inputValue) => {
+  if (inputValue.length >= 3) {
+    try {
+      const response = await axios.get(
+        `${routesVam}/Diagnosticos/${inputValue}`
+      );
+
+      const formatedData = response.data.slice(0, 50).map((result) => ({
+        value: result.CD_CAUSA_SIN,
+        label: result.NM_CAUSA,
+        ...result,
+      }));
+
+      console.log("FORMATED DATA: ", formatedData);
 
       return formatedData;
       // Mostrar los resultados en el frontend
@@ -495,7 +504,7 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
   const [v6, set6] = useState(selectsData.subArea[0]);
   const [v7, set7] = useState(selectsData.ramos[0]);
   const [v8, set8] = useState(selectsData.taller[0]);
-  const [v9, set9] = useState(selectsData.placa[0]);
+  const [v9, set9] = useState(null);
   const [checkboxActivo, setCheckboxActivo] = useState(false);
   const handleCheckboxChange = () => {
     setCheckboxActivo(!checkboxActivo);
@@ -573,7 +582,7 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
                           />
                         </div>
 
-                        <div className="col-6">
+                        <div className="col-12">
                           <label className="form-label fw-bold text-secondary fs-7">
                             Póliza:
                           </label>
@@ -584,7 +593,7 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
                             placeholder={"TODOS"}
                           />
                         </div>
-                        <div className="col-3">
+                        <div className="col-6">
                           <label className="form-label fw-bold text-secondary fs-7">
                             Nº:
                           </label>
@@ -595,7 +604,7 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
                             placeholder={"TODOS"}
                           />
                         </div>
-                        <div className="col-3">
+                        <div className="col-6">
                           <label className="form-label fw-bold text-secondary fs-7">
                             Año:
                           </label>
@@ -930,21 +939,18 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
                           <label className="form-label fw-bold text-secondary fs-7">
                             Diagnostico:
                           </label>
-                          <UqaiField
-                            type="text"
-                            component="select"
-                            className="form-select"
-                            name="cdDiagnostico"
-                          >
-                            <option value={"TODOS"} key={"todos"}>
-                              {"TODOS"}
-                            </option>
-                            {(selectsData.diagnostico || []).map((opt) => (
-                              <option key={opt.label} value={opt.value}>
-                                {opt.label}
-                              </option>
-                            ))}
-                          </UqaiField>
+
+                          <AsyncSelect
+                            placeholder="TODOS"
+                            value={v0}
+                            cacheOptions
+                            defaultOptions
+                            loadOptions={loadOptionsNewDiagnostico}
+                            onChange={(valueSelect) => {
+                              setFieldValue("cdDiagnostico", valueSelect.label);
+                              set0(valueSelect);
+                            }}
+                          />
                         </div>
                         <div className="col-12">
                           <label className="form-label fw-bold text-secondary fs-7">
@@ -961,28 +967,19 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
                           <label className="form-label fw-bold text-secondary fs-7">
                             Taller:
                           </label>
-                          <UqaiField
-                            type="text"
-                            component="select"
-                            className="form-select"
-                            name="cdTaller"
-                          >
-                            <Select
-                              value={v8}
-                              defaultValue={selectsData.taller[0]}
-                              options={selectsData.taller}
-                              getOptionLabel={(option) => option.DSC_TALLER}
-                              getOptionValue={(option) => option.CD_TALLER}
-                              onChange={(valueSelect) => {
-                                setFieldValue(
-                                  "cdTaller",
-                                  valueSelect.CD_TALLER
-                                );
-                                set8(valueSelect);
-                                // setValuePrioridad(valueSelect);
-                              }}
-                            />
-                          </UqaiField>
+
+                          <Select
+                            value={v8}
+                            defaultValue={selectsData.taller[0]}
+                            options={selectsData.taller}
+                            getOptionLabel={(option) => option.DSC_TALLER}
+                            getOptionValue={(option) => option.CD_TALLER}
+                            onChange={(valueSelect) => {
+                              setFieldValue("cdTaller", valueSelect.CD_TALLER);
+                              set8(valueSelect);
+                              // setValuePrioridad(valueSelect);
+                            }}
+                          />
                         </div>
                         <div>
                           <div
@@ -1055,6 +1052,7 @@ export const LeyendaColor = ({ color, txt }) => {
 const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
   const [resultSearch, setResulSearch] = useState([]);
   const [valuePolizaSelect, setValuePolizaSelect] = useState(null);
+  const [valueSucursalSelect, setValueSucursalSelect] = useState(null);
   const [placaSelect, setPlacaSelect] = useState(null);
   const [cdClienteAux, setCdClienteAux] = useState(null);
   const [cdRamoAux, setCdRamoAux] = useState(null);
@@ -1071,6 +1069,7 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
   const aseguradorasData = useSelector((state) => state.aseguradoras.value);
   const ramosData = useSelector((state) => state.ramos.value);
   const sucursalData = useSelector((state) => state.sucursal.value);
+  const [v0, set0] = useState(null);
 
   const aseguradoraProperties = ["ID", "CD_ASEGURADORA"];
   const ramoProperties = ["CD_RAMO", "CD_RAMO"];
@@ -1108,13 +1107,13 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
   useEffect(() => {
     const newValues = {
       ram_cot: valuePolizaSelect?.CD_RAMO_COTIZACION,
-      cdSucursal: cdSucursalAux,
+      cdSucursal: valuePolizaSelect?.CD_COMPANIA,
       ramoNM: nombreRamoAux,
     };
     if (
       valuePolizaSelect &&
       valuePolizaSelect.CD_RAMO_COTIZACION &&
-      cdSucursalAux &&
+      valuePolizaSelect.CD_COMPANIA &&
       nombreRamoAux
     ) {
       searchDataAsegurados(newValues);
@@ -1211,6 +1210,7 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
       const arrayDeObjetos = Object.keys(response.data).map((clave) => {
         return { [clave]: response.data[clave] };
       });
+      console.log("PARAMS_ ", values);
 
       console.log("RESPONSE Asegurados: ", arrayDeObjetos);
 
@@ -1370,6 +1370,12 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
                       setFieldValue("poliza", valueSelect.POLIZA);
                       setFieldValue("cdFactAseg", valueSelect.FACT_ASEG);
                       setFieldValue("cdAnexo", valueSelect.ANEXO);
+
+                      const sucursalObj = sucursalData.filter(
+                        (item) => item.ID === valueSelect.CD_COMPANIA
+                      );
+
+                      setValueSucursalSelect(sucursalObj);
                       // setFieldValue(
                       //   "cdAsegurado",
                       //   resultSearch[0].CD_COTIZACION
@@ -1443,6 +1449,7 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
 
                   <Select
                     placeholder="Sucursal"
+                    value={valueSucursalSelect}
                     options={groupedOptionsSucursal}
                     getOptionLabel={(option) => option.SUCURSAL}
                     getOptionValue={(option) => option.ID}
@@ -1478,18 +1485,17 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
                   <label className="form-label fw-bold text-secondary fs-7">
                     Diagnostico-causa:
                   </label>
-                  <UqaiField
-                    type="text"
-                    component="select"
-                    className="form-select"
-                    name="cdDiagnostico"
-                  >
-                    {[].map((opt) => (
-                      <option key={opt.label} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </UqaiField>
+                  <AsyncSelect
+                    placeholder="Diagnostico-causa"
+                    value={v0}
+                    cacheOptions
+                    defaultOptions
+                    loadOptions={loadOptionsNewDiagnostico}
+                    onChange={(valueSelect) => {
+                      setFieldValue("cdDiagnostico", valueSelect.label);
+                      set0(valueSelect);
+                    }}
+                  />
                 </div>
                 <div className="col-2">
                   <label className="form-label fw-bold text-secondary fs-7">
