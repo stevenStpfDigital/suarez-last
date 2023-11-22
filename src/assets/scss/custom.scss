@@ -231,7 +231,10 @@ Note: Beware of modifying this element as it can break the animations - you shou
   background-color: $priorityRed;
 }
 
-.css-1nmdiq5-menu {
-  z-index: 1000 !important;
-  // position: relative !important;
-}
+// .css-1nmdiq5-menu {
+//   z-index: 1 !important;
+//   // position: relative !important;
+//   position: fixed !important;
+//   // top: 0 !important;
+//   // left: 0 !important;
+// }

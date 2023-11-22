@@ -3,6 +3,8 @@
 import moment from "moment/moment";
 import { Estados } from "./Estados";
 import { ListObservaciones } from "../FiltrosSiniestros";
+import Usuarios from "./Usuarios";
+import FcOcurrencia from "./FcOcurrencia";
 // import TextComent from "./TextComent";
 
 export const TableColumnsSiniestros = [
@@ -57,7 +59,7 @@ export const TableColumnsSiniestros = [
     accessor: (d) => {
       return !d.FC_RECEPCION_BRK
         ? ""
-        : moment(d.FC_RECEPCION_BRK).locale("es").format("DD/MM/YYYY");
+        : moment(d.FC_RECPCION_BRK).locale("es").format("DD/MM/YYYY");
     },
     id: "FECHA_RECEPCION",
     width: 120,
@@ -144,14 +146,14 @@ export const TableColumnsSiniestros = [
     Header: "Diagnostico",
     minResizeWidth: 10,
     filterable: false,
-    accessor: "NM_ALIAS",
+    accessor: "CAUSA",
     id: "DIAGNOSTICO",
   },
   {
     Header: "Placa",
     minResizeWidth: 10,
     filterable: false,
-    accessor: "NM_ALIAS",
+    accessor: "ITEM",
     id: "PLACA",
   },
 
@@ -159,7 +161,7 @@ export const TableColumnsSiniestros = [
     Header: "Taller",
     minResizeWidth: 10,
     filterable: false,
-    accessor: "NM_ALIAS",
+    accessor: "TALLER",
     id: "TALLER",
     // show: isAdmin || isEjecutivo,
     // Cell: (row) => {
@@ -171,11 +173,30 @@ export const TableColumnsSiniestros = [
     minResizeWidth: 10,
     filterable: false,
     accessor: (d) => {
-      return !d.fcUltGestion
+      return !d.FC_SEGUIMIENTO
         ? ""
-        : moment(d.fcCreacion).locale("es").format("DD/MM/YYYY");
+        : moment(d.FC_SEGUIMIENTO).locale("es").format("DD/MM/YYYY");
     },
     id: "FC_ULT_GESTION",
+  },
+  {
+    Header: "Fc. Ocurrencia",
+    minResizeWidth: 10,
+    filterable: false,
+    // accessor: (d) => {
+    //   return !d.FC_SEGUIMIENTO
+    //     ? ""
+    //     : moment(d.FC_SEGUIMIENTO).locale("es").format("DD/MM/YYYY");
+    // },
+    Cell: (row) => {
+      return (
+        <>
+          <FcOcurrencia />
+        </>
+      );
+    },
+
+    id: "FC_OCURRENCIA",
   },
   {
     Header: "Estado",
@@ -211,6 +232,7 @@ export const TableColumnsSiniestros = [
     accessor: "",
     id: "OBSERVACIONES_ESTADO",
     Cell: (row) => {
+      console.log("rowData: ", row);
       return (
         <>
           <ListObservaciones
@@ -255,8 +277,16 @@ export const TableColumnsSiniestros = [
   {
     Header: "Usuario",
     minResizeWidth: 10,
+    width: 300,
     filterable: false,
-    accessor: "NM_ALIAS",
+    accessor: "CD_USUARIO",
     id: "USUARIO",
+    Cell: (row) => {
+      return (
+        <>
+          <Usuarios usuario={{ usuario: row.original.CD_USUARIO }} />
+        </>
+      );
+    },
   },
 ];

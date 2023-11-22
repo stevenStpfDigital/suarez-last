@@ -28,8 +28,12 @@ import { save_data_storage } from "./redux/estSiniestrosSlice";
 import CheckDbroker from "./parts/CheckDbroker";
 import AccionButton from "./components/AccionButton";
 import { Estados } from "./parts/Estados";
-import AsyncCreatableSelect from "react-select/async-creatable";
+
+import CreatableSelect from "react-select/creatable";
 import { save_data_storage_aseguradoras } from "./redux/aseguradorasSlice";
+import { save_data_storage_ramos } from "./redux/ramosSlice";
+import { save_data_storage_sucursal } from "./redux/sucursalSlice";
+import { save_data_storage_usuarios } from "./redux/usuariosSlice";
 
 const routesVam = "http://10.147.20.248:3030/api";
 
@@ -55,6 +59,8 @@ export const FiltrosSiniestros = () => {
   const [sucursalSiniestro, setSucursalSiniestro] = useState([]);
   const [usuariosD, setUsuariosD] = useState([]);
   const [subArea, setSubArea] = useState([]);
+  const [placas, setPlacas] = useState([]);
+
   const [diagnostico, setDiagnostico] = useState([]);
   const [taller, setTaller] = useState([]);
   const [first, setFirst] = useState(true);
@@ -78,7 +84,9 @@ export const FiltrosSiniestros = () => {
     getSucursal();
     getUsuariosD();
     getSubArea();
-
+    // getPlacas();
+    getTallere();
+    //  getDiagnosticos();
     // getDiagnostico();
     // getTaller();
   }, []);
@@ -127,6 +135,8 @@ export const FiltrosSiniestros = () => {
         ...res.data, // Mantén los elementos existentes
       ];
       setRamos(dataWithTodos);
+      dispatch(save_data_storage_ramos(res.data));
+
       //console.log("dataWithTodos", dataWithTodos);
     });
   };
@@ -138,6 +148,7 @@ export const FiltrosSiniestros = () => {
       ];
       setSucursal(dataWithTodos);
       setSucursalSiniestro(res.data);
+      dispatch(save_data_storage_sucursal(res.data));
     });
   };
   const getUsuariosD = () => {
@@ -147,6 +158,7 @@ export const FiltrosSiniestros = () => {
         ...res.data, // Mantén los elementos existentes
       ];
       setUsuariosD(dataWithTodos);
+      dispatch(save_data_storage_usuarios(res.data));
     });
   };
   const getSubArea = () => {
@@ -156,6 +168,36 @@ export const FiltrosSiniestros = () => {
         ...res.data, // Mantén los elementos existentes
       ];
       setSubArea(dataWithTodos);
+    });
+  };
+  const getPlacas = () => {
+    axios.get(`${routesVam}/placas`).then((res) => {
+      const dataWithTodos = [
+        { ID: "%", SUBAREA: "TODOS" },
+        ...res.data, // Mantén los elementos existentes
+      ];
+      console.log("PLACAS: ", dataWithTodos);
+      setPlacas(dataWithTodos);
+    });
+  };
+  const getDiagnosticos = () => {
+    axios.get(`${routesVam}/Diagnosticos`).then((res) => {
+      const dataWithTodos = [
+        { CD_CAUSA_SIN: "%", NM_CAUSA: "TODOS" },
+        ...res.data, // Mantén los elementos existentes
+      ];
+      console.log("DIAGNOSTICO: ", dataWithTodos);
+      setDiagnostico(dataWithTodos);
+    });
+  };
+  const getTallere = () => {
+    axios.get(`${routesVam}/talleres`).then((res) => {
+      const dataWithTodos = [
+        { CD_TALLER: "%", DSC_TALLER: "TODOS" },
+        ...res.data, // Mantén los elementos existentes
+      ];
+
+      setTaller(dataWithTodos);
     });
   };
 
@@ -270,16 +312,6 @@ export const FiltrosSiniestros = () => {
     }
   };
 
-  function noDataComponent() {
-    return <NoDataResult first={first} />;
-  }
-  const NoDataResult = ({ first }) => {
-    if (first) return null;
-
-    return <p>No se han encontrado resultados</p>;
-  };
-  // Función para manejar el cambio del checkbox
-
   return (
     <PagesDBroker title={"Siniestros registrados"}>
       <section className="p-1 p-md-2 p-xl-4 flex-grow-1">
@@ -300,6 +332,7 @@ export const FiltrosSiniestros = () => {
                   subArea: subArea,
                   diagnostico: diagnostico,
                   taller: taller,
+                  placa: placas,
                 }}
               />
               <Card className="shadow">
@@ -346,6 +379,7 @@ export const FiltrosSiniestros = () => {
                   <div className="row">
                     <div className="col">
                       <ReactTable
+                        noDataText={<></>}
                         loadingText={"Cargando..."}
                         rowsText={"filas"}
                         ofText={"de"}
@@ -460,6 +494,8 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
   const [v5, set5] = useState(selectsData.usuariosD[0]);
   const [v6, set6] = useState(selectsData.subArea[0]);
   const [v7, set7] = useState(selectsData.ramos[0]);
+  const [v8, set8] = useState(selectsData.taller[0]);
+  const [v9, set9] = useState(selectsData.placa[0]);
   const [checkboxActivo, setCheckboxActivo] = useState(false);
   const handleCheckboxChange = () => {
     setCheckboxActivo(!checkboxActivo);
@@ -468,6 +504,8 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
   const handleClose = () => setShow(false);
   const toggleShow = () => setShow((s) => !s);
   const form = useRef();
+
+  // console.log("SELETS TALLER: ", selectsData.taller);
   // La función debounce ayuda a limitar la frecuencia de llamadas a loadOptions
 
   return (
@@ -485,12 +523,12 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
         onHide={handleClose}
         scroll={true}
         backdrop={true}
-        className="w-35"
+        className="w-40"
       >
         {/* <Offcanvas.Header closeButton>
           <Offcanvas.Title>Offcanvas</Offcanvas.Title>
         </Offcanvas.Header> */}
-        <Offcanvas.Body className="p-0 ">
+        <Offcanvas.Body className="p-0">
           <div className="col-12  bg-primary">
             <Card className="shadow">
               <CardHeader className="d-flex align-items-center border-bottom border-primary">
@@ -618,7 +656,7 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
                             }}
                           />
                         </div>
-                        <div className="col-6">
+                        <div className="col-12">
                           <label className="form-label fw-bold text-secondary fs-7">
                             Est. Siniestro:
                           </label>
@@ -656,7 +694,7 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
                             }}
                           />
                         </div>
-                        <div className="col-6">
+                        <div className="col-12">
                           <label className="form-label fw-bold text-secondary fs-7">
                             Ramo:
                           </label>
@@ -757,8 +795,8 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
                             Fc.Ingreso:
                           </label>
 
-                          <div className="row align-items-center">
-                            <div className="col-1">
+                          <div className=" row  align-items-center">
+                            <div className="col-1 p-0">
                               <UqaiField
                                 name="checkFcIngreso"
                                 component={CheckDbroker}
@@ -778,7 +816,7 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
                             Fc.Evento:
                           </label>
                           <div className="row align-items-center">
-                            <div className="col-1">
+                            <div className="col-1 p-0">
                               <UqaiField
                                 name="checkFcEvento"
                                 component={CheckDbroker}
@@ -798,7 +836,7 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
                             Fc. Recepción:
                           </label>
                           <div className="row align-items-center">
-                            <div className="col-1">
+                            <div className="col-1 p-0">
                               <UqaiField
                                 name="checkFcRecepcion"
                                 component={CheckDbroker}
@@ -818,7 +856,7 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
                             Ultima Gestión
                           </label>
                           <div className="row align-items-center">
-                            <div className="col-1">
+                            <div className="col-1 p-0">
                               <UqaiField
                                 name="checkFcGestion"
                                 component={CheckDbroker}
@@ -929,14 +967,21 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
                             className="form-select"
                             name="cdTaller"
                           >
-                            <option value={"TODOS"} key={"todos"}>
-                              {"TODOS"}
-                            </option>
-                            {(selectsData.taller || []).map((opt) => (
-                              <option key={opt.value} value={opt.value}>
-                                {opt.label}
-                              </option>
-                            ))}
+                            <Select
+                              value={v8}
+                              defaultValue={selectsData.taller[0]}
+                              options={selectsData.taller}
+                              getOptionLabel={(option) => option.DSC_TALLER}
+                              getOptionValue={(option) => option.CD_TALLER}
+                              onChange={(valueSelect) => {
+                                setFieldValue(
+                                  "cdTaller",
+                                  valueSelect.CD_TALLER
+                                );
+                                set8(valueSelect);
+                                // setValuePrioridad(valueSelect);
+                              }}
+                            />
                           </UqaiField>
                         </div>
                         <div>
@@ -958,6 +1003,7 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
                                 set5(selectsData.usuariosD[0]);
                                 set6(selectsData.subArea[0]);
                                 set7(selectsData.ramos[0]);
+                                set8(selectsData.taller[0]);
 
                                 handleResetForm(resetForm);
                               }}
@@ -1009,84 +1055,170 @@ export const LeyendaColor = ({ color, txt }) => {
 const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
   const [resultSearch, setResulSearch] = useState([]);
   const [valuePolizaSelect, setValuePolizaSelect] = useState(null);
+  const [placaSelect, setPlacaSelect] = useState(null);
   const [cdClienteAux, setCdClienteAux] = useState(null);
+  const [cdRamoAux, setCdRamoAux] = useState(null);
+  const [nombreRamoAux, setNombreRamoAux] = useState(null);
+  const [cdAseguradoraAux, setCdAseguradoraAux] = useState(null);
+  const [cdSucursalAux, setCdSucursalAux] = useState(null);
   const [groupedOptionsAseguradora, setGroupedOptionsAseguradora] = useState(
     []
   );
+  const [groupedOptionsRamo, setGroupedOptionsRamo] = useState([]);
+  const [groupedOptionsSucursal, setGroupedOptionsSucursal] = useState([]);
+  const [polizaOptions, setPolizaOptions] = useState([]);
+  const [aseguradoOptions, setAseguradoOptions] = useState([]);
   const aseguradorasData = useSelector((state) => state.aseguradoras.value);
+  const ramosData = useSelector((state) => state.ramos.value);
+  const sucursalData = useSelector((state) => state.sucursal.value);
+
+  const aseguradoraProperties = ["ID", "CD_ASEGURADORA"];
+  const ramoProperties = ["CD_RAMO", "CD_RAMO"];
+  const sucursalProperties = ["ID", "CD_COMPANIA"];
 
   useEffect(() => {
-    if (cdClienteAux) {
-      axios
-        .get(`${routesVam}/aliasAseguradora/cliente/${cdClienteAux}`)
-        .then((res) => {
-          const aseguradorasProduccion = aseguradorasData.filter((item1) =>
-            res.data.some((item2) => item1.ID === item2.ID)
-          );
-          const aseguradorasRest = aseguradorasData.filter(
-            (item1) => !res.data.some((item2) => item1.ID === item2.ID)
-          );
-          setGroupedOptionsAseguradora([
-            {
-              label: "Produccion",
-              options: aseguradorasProduccion,
-            },
-            {
-              label: "Aseguradoras",
-              options: aseguradorasRest,
-            },
-          ]);
-        })
-        .catch((error) => {
-          console.log("Error:_ ", error);
-        });
-      // const array2 = [{ ID: 1 }, { ID: 3 }];
+    fetchData();
+  }, [cdClienteAux, cdAseguradoraAux, cdRamoAux, cdSucursalAux]);
 
-      // const aseguradorasProduccion = aseguradorasData.filter((item1) =>
-      //   array2.some((item2) => item1.ID === item2.ID)
-      // );
-      // const aseguradorasRest = aseguradorasData.filter(
-      //   (item1) => !array2.some((item2) => item1.ID === item2.ID)
-      // );
-      // setGroupedOptionsAseguradora([
-      //   {
-      //     label: "Produccion",
-      //     options: aseguradorasProduccion,
-      //   },
-      //   {
-      //     label: "Aseguradoras",
-      //     options: aseguradorasRest,
-      //   },
-      // ]);
-    }
-  }, [cdClienteAux]);
-
-  const loadOptions = async (values, callback) => {
+  useEffect(() => {
     const newValues = {
-      cdCliente: values.cdCliente,
-      cdSucursal: values.cdSucursal,
-      cdRamo: values.cdRamo,
+      cdCliente: cdClienteAux || "%",
+      cdSucursal: cdSucursalAux || "%",
+      cdRamo: cdRamoAux || "%",
       poliza: "%",
     };
-    // console.log("NewValues: ", newValues);
-    callback(await searchDataPoliza(newValues));
+    if (cdClienteAux) searchDataPoliza(newValues);
+  }, [cdClienteAux, cdSucursalAux, cdRamoAux]);
+
+  useEffect(() => {
+    if (valuePolizaSelect?.CD_RAMO_COTIZACION) {
+      const obj = {
+        cdRC: valuePolizaSelect.CD_RAMO_COTIZACION,
+        cdSucursal: "%",
+        poliza: "%", // valuePolizaSelect.POLIZA,
+        cdCliente: "%", //cdClienteAux
+      };
+      axios.post(`${routesVam}/placas`, obj).then((res) => {
+        console.log("RESPONSE PLACAS: ", res);
+        setPlacaSelect(res.data);
+      });
+    }
+  }, [valuePolizaSelect]);
+
+  useEffect(() => {
+    const newValues = {
+      ram_cot: valuePolizaSelect?.CD_RAMO_COTIZACION,
+      cdSucursal: cdSucursalAux,
+      ramoNM: nombreRamoAux,
+    };
+    if (
+      valuePolizaSelect &&
+      valuePolizaSelect.CD_RAMO_COTIZACION &&
+      cdSucursalAux &&
+      nombreRamoAux
+    ) {
+      searchDataAsegurados(newValues);
+    }
+  }, [cdSucursalAux, nombreRamoAux, valuePolizaSelect]);
+
+  const filterByProperties = (item1, array2, propertys) =>
+    array2.some((item2) => item1[propertys[0]] === item2[propertys[1]]);
+
+  const filterOptionsByProperties = (options, data, filterProperties) => ({
+    included: options.filter((item) =>
+      filterByProperties(item, data, filterProperties)
+    ),
+    excluded: options.filter(
+      (item) => !filterByProperties(item, data, filterProperties)
+    ),
+  });
+
+  const fetchData = async () => {
+    try {
+      if (!cdClienteAux) return;
+
+      const obj = {
+        cdRamo: cdRamoAux || "%",
+        cdSucursal: cdSucursalAux || "%",
+        poliza: "%",
+        cdAseguradora: cdAseguradoraAux || "%",
+        cdCliente: cdClienteAux,
+      };
+
+      const res = await axios.post(
+        `${routesVam}/aliasAseguradora/cliente`,
+        obj
+      );
+
+      const filterAseguradoras = filterOptionsByProperties(
+        aseguradorasData,
+        res.data,
+        aseguradoraProperties
+      );
+      const filterRamos = filterOptionsByProperties(
+        ramosData,
+        res.data,
+        ramoProperties
+      );
+      const filterSucursales = filterOptionsByProperties(
+        sucursalData,
+        res.data,
+        sucursalProperties
+      );
+      console.log(
+        "FILTERASEGURADORAS: ",
+        filterAseguradoras.included.length,
+        "Exlu_",
+        filterAseguradoras.excluded.length
+      );
+
+      setGroupedOptionsAseguradora([
+        { label: "Producción", options: filterAseguradoras.included },
+        { label: "Aseguradoras", options: filterAseguradoras.excluded },
+      ]);
+
+      setGroupedOptionsRamo([
+        { label: "Producción", options: filterRamos.included },
+        { label: "Ramos", options: filterRamos.excluded },
+      ]);
+
+      setGroupedOptionsSucursal([
+        { label: "Producción", options: filterSucursales.included },
+        { label: "Sucursal", options: filterSucursales.excluded },
+      ]);
+    } catch (error) {
+      console.error("Error: ", error);
+    }
   };
+
   const searchDataPoliza = async (values) => {
-    // console.log("Siniestro OBjeto ", values);
     try {
       const response = await axios.post(`${routesVam}/polizas`, values);
-      console.log("REsonseData: ", response.data);
-
+      console.log("VALUES: ", values);
+      console.log("RESPONSE POliza: ", response.data);
       setResulSearch(response.data);
-      const formatedData = response.data.map((result) => ({
-        value: result.POLIZA,
-        label: result.POLIZA,
-      }));
-      //return formatedData;
-      return response.data;
+      setPolizaOptions(response.data);
+      //return response.data;
     } catch (error) {
       console.log("ERROR: ", error);
-      return [];
+      // return [];
+    }
+  };
+  const searchDataAsegurados = async (values) => {
+    try {
+      const response = await axios.post(`${routesVam}/Asegurados`, values);
+
+      const arrayDeObjetos = Object.keys(response.data).map((clave) => {
+        return { [clave]: response.data[clave] };
+      });
+
+      console.log("RESPONSE Asegurados: ", arrayDeObjetos);
+
+      setAseguradoOptions(arrayDeObjetos);
+      //return response.data;
+    } catch (error) {
+      console.log("ERROR: ", error);
+      //return [];
     }
   };
   const onSubmit = async (newValues, actions) => {
@@ -1099,21 +1231,6 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
       console.log("ERROR: ", error);
     }
   };
-
-  const loadOptionsAsegurado = (values, callback) => {
-    callback([{ value: 1, label: "nuevo" }]);
-  };
-
-  // const groupedOptions = [
-  //   {
-  //     label: "Produccion",
-  //     options: "",
-  //   },
-  //   {
-  //     label: "Aseguradoras",
-  //     options: "",
-  //   },
-  // ];
 
   return (
     <Modal isOpen={open} toggle={() => setOpen(false)} size="xl" centered>
@@ -1147,17 +1264,7 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
                     }}
                   />
                 </div>
-                {/* <div className="col-2">
-                  <label className="form-label fw-bold text-secondary fs-7">
-                    Cliente:
-                  </label>
-                  <UqaiField
-                    type="text"
-                    name={"cliente"}
-                    className={"form-control"}
-                    placeholder={"Cliente"}
-                  />
-                </div> */}
+
                 <div className="col-2">
                   <label className="form-label fw-bold text-secondary fs-7">
                     * Aseguradora:
@@ -1170,34 +1277,9 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
                     getOptionValue={(option) => option.ID}
                     onChange={(valueSelect) => {
                       setFieldValue("cdAseguradora", valueSelect.ID);
+                      setCdAseguradoraAux(valueSelect.ID);
                       // setValuePrioridad(valueSelect);
                     }}
-                  />
-                </div>
-                <div className="col-2">
-                  <label className="form-label fw-bold text-secondary fs-7">
-                    * Sucursal:
-                  </label>
-
-                  <Select
-                    placeholder="Sucursal"
-                    options={selectsData.sucursal}
-                    getOptionLabel={(option) => option.SUCURSAL}
-                    getOptionValue={(option) => option.ID}
-                    onChange={(valueSelect) => {
-                      setFieldValue("cdSucursal", valueSelect.ID);
-                      // setValuePrioridad(valueSelect);
-                    }}
-                  />
-                </div>
-                <div className="col-2">
-                  <label className="form-label fw-bold text-secondary fs-7">
-                    * Fc. Recepcion:
-                  </label>
-                  <UqaiField
-                    name="fcRecepcion"
-                    placeholder="Ingrese Fecha"
-                    component={UqaiCalendario}
                   />
                 </div>
                 <div className="col-2">
@@ -1207,11 +1289,13 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
 
                   <Select
                     placeholder={"Ramo"}
-                    options={selectsData.ramos}
+                    options={groupedOptionsRamo}
                     getOptionLabel={(option) => option.NM_RAMO}
                     getOptionValue={(option) => option.CD_RAMO}
                     onChange={(valueSelect) => {
                       setFieldValue("cdRamo", valueSelect.CD_RAMO);
+                      setCdRamoAux(valueSelect.CD_RAMO);
+                      setNombreRamoAux(valueSelect.NM_RAMO);
                     }}
                   />
                 </div>
@@ -1219,20 +1303,37 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
                   <label className="form-label fw-bold text-secondary fs-7">
                     Poliza:
                   </label>
-                  <AsyncSelect
+                  <Select
                     placeholder="Poliza"
                     value={valuePolizaSelect}
-                    getOptionLabel={(option) => option.POLIZA}
-                    cacheOptions
+                    options={polizaOptions}
+                    getOptionLabel={(option) => (
+                      <>
+                        <b>Póliza: </b>
+                        {option.POLIZA} <b>Vigencia:</b>{" "}
+                        {moment(option.FC_DESDE)
+                          .locale("es")
+                          .format("DD/MM/YYYY")}{" "}
+                        -
+                        {moment(option.FC_HASTA)
+                          .locale("es")
+                          .format("DD/MM/YYYY")}
+                      </>
+                    )}
                     components={{
                       Option: (props) => {
                         return (
                           <div
                             style={{
                               display: "flex",
+                              cursor: "pointer",
                               alignItems: "center",
                               padding: "1px", // Ajusta esto según tus necesidades
+                              backgroundColor: "#FFFFFF", // Color de fondo predeterminado
                             }}
+                            onHover={() =>
+                              (this.style.backgroundColor = "#DEEBFF")
+                            }
                             {...props.innerProps}
                           >
                             <div>
@@ -1255,28 +1356,54 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
                       },
                     }}
                     //defaultOptions
-                    loadOptions={(input, callback) => {
-                      if (
-                        values.cdCliente &&
-                        values.cdSucursal &&
-                        values.cdRamo
-                      ) {
-                        loadOptions(values, callback);
-                      }
-                    }}
+                    // loadOptions={(input, callback) => {
+                    //   if (
+                    //     values.cdCliente &&
+                    //     values.cdSucursal &&
+                    //     values.cdRamo
+                    //   ) {
+                    //     loadOptions(values, callback);
+                    //   }
+                    // }}
                     onChange={(valueSelect) => {
                       setValuePolizaSelect(valueSelect);
                       setFieldValue("poliza", valueSelect.POLIZA);
                       setFieldValue("cdFactAseg", valueSelect.FACT_ASEG);
                       setFieldValue("cdAnexo", valueSelect.ANEXO);
-                      setFieldValue(
-                        "cdAsegurado",
-                        resultSearch[0].CD_COTIZACION
-                      );
-                      setFieldValue("cdPlaca", resultSearch[0].CD_COTIZACION);
+                      // setFieldValue(
+                      //   "cdAsegurado",
+                      //   resultSearch[0].CD_COTIZACION
+                      // );
+                      // setFieldValue("cdPlaca", resultSearch[0].CD_COTIZACION);
                     }}
                   />
                 </div>
+                <div className="col-2">
+                  <label className="form-label fw-bold text-secondary fs-7">
+                    Asegurado-propietario:
+                  </label>
+                  {/* <UqaiField
+                    type="text"
+                    name={"cdAsegurado"}
+                    className={"form-control"}
+                    placeholder={"Asegurado"}
+                  /> */}
+                  {/* <AsyncCreatableSelect
+                    cacheOptions
+                    defaultOptions
+                    loadOptions={loadOptionsAsegurado}
+                  /> */}
+                  <CreatableSelect
+                    placeholder="Asegurados"
+                    options={aseguradoOptions}
+                    getOptionLabel={(option) => option.asegurado}
+                    getOptionValue={(option) => option.asegurado}
+                    onChange={(valueSelect) => {
+                      setFieldValue("cdAsegurado", valueSelect.asegurado);
+                    }}
+                  />
+                </div>
+
                 {valuePolizaSelect && (
                   <>
                     <div className="col-2">
@@ -1311,29 +1438,39 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
                 )}
                 <div className="col-2">
                   <label className="form-label fw-bold text-secondary fs-7">
+                    * Sucursal:
+                  </label>
+
+                  <Select
+                    placeholder="Sucursal"
+                    options={groupedOptionsSucursal}
+                    getOptionLabel={(option) => option.SUCURSAL}
+                    getOptionValue={(option) => option.ID}
+                    onChange={(valueSelect) => {
+                      setFieldValue("cdSucursal", valueSelect.ID);
+                      setCdSucursalAux(valueSelect.ID);
+                      // setValuePrioridad(valueSelect);
+                    }}
+                  />
+                </div>
+                <div className="col-2">
+                  <label className="form-label fw-bold text-secondary fs-7">
+                    Fc. Recepcion:
+                  </label>
+                  <UqaiField
+                    name="fcRecepcion"
+                    placeholder="Ingrese Fecha"
+                    component={UqaiCalendario}
+                  />
+                </div>
+                <div className="col-2">
+                  <label className="form-label fw-bold text-secondary fs-7">
                     Fc. Evento:
                   </label>
                   <UqaiField
                     name="fcEvento"
                     placeholder="Ingrese Fecha"
                     component={UqaiCalendario}
-                  />
-                </div>
-
-                <div className="col-2">
-                  <label className="form-label fw-bold text-secondary fs-7">
-                    Asegurado-propietario:
-                  </label>
-                  {/* <UqaiField
-                    type="text"
-                    name={"cdAsegurado"}
-                    className={"form-control"}
-                    placeholder={"Asegurado"}
-                  /> */}
-                  <AsyncCreatableSelect
-                    cacheOptions
-                    defaultOptions
-                    loadOptions={loadOptionsAsegurado}
                   />
                 </div>
 
@@ -1358,11 +1495,15 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
                   <label className="form-label fw-bold text-secondary fs-7">
                     Placa-item:
                   </label>
-                  <UqaiField
-                    type="text"
-                    name={"cdPlaca"}
-                    className={"form-control"}
-                    placeholder={"Placa"}
+                  <Select
+                    placeholder="Placa-item"
+                    options={placaSelect}
+                    getOptionLabel={(option) => option.PLACA}
+                    getOptionValue={(option) => option.PLACA}
+                    onChange={(valueSelect) => {
+                      setFieldValue("placa", valueSelect.PLACA);
+                      // setValuePrioridad(valueSelect);
+                    }}
                   />
                 </div>
                 <div className="col-2">
@@ -1382,7 +1523,7 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
                     ))}
                   </UqaiField>
                 </div>
-                <div className="d-flex justify-content-end col-12 ">
+                <div className="d-flex justify-content-end col-12  mt-3  ">
                   <div className="d-flex col-3 justify-content-between ">
                     <button
                       type="button"

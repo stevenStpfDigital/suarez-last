@@ -114,3 +114,10 @@ export const PRIORIDAD_SELECTS = [
   { color: "#FFEC0F", value: 1, label: "MEDIA" },
   { color: "#FF1C1C", value: 2, label: "ALTA" },
 ];
+
+export const AUX_CHECK_CONTROLLER = [
+  "checkFcIngreso",
+  "checkFcEvento",
+  "checkFcRecepcion",
+  "checkFcGestion",
+];

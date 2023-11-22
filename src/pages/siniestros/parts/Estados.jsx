@@ -26,7 +26,7 @@ export const Estados = ({ estado }) => {
   );
   useEffect(() => {
     if (estadoObj.length > 0) {
-      console.log("EstadoObj: ", estadoObj);
+    
       set3(estadoObj);
     }
   }, [siniestrosData]);
@@ -69,13 +69,14 @@ export const Estados = ({ estado }) => {
           <div className="row ">
             <Select
               className="col-6"
+              menuPortalTarget={document.body}
               value={v3}
-              defaultValue={siniestrosData[0]}
+          
               options={siniestrosData}
               getOptionLabel={(option) => option.DSC_ESTADO}
               getOptionValue={(option) => option.CD_EST_SINIESTRO}
               onChange={(valueSelect) => {
-                console.log("");
+               
                 setFieldValue(
                   "cd_estado_siniestro",
                   valueSelect.CD_EST_SINIESTRO
