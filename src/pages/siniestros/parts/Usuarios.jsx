@@ -4,7 +4,10 @@ import Select from "react-select";
 import { useSelector } from "react-redux";
 import axios from "axios";
 
-const routesVam = "http://10.147.20.248:3030/api";
+//DEVELOPMENT
+//const routesVam = "http://10.147.20.248:3030/api";
+//LIVE
+const routesVam = "http://localhost:3030/api";
 const Usuarios = ({ usuario }) => {
   const form = useRef();
   const usuariosData = useSelector((state) => state.usuario.value);
@@ -28,7 +31,7 @@ const Usuarios = ({ usuario }) => {
     };
 
     axios.post(`${routesVam}/Usuarios/modificar`, usuarioUpdate).then((res) => {
-     // console.log("RES SUCCESS: ", res);
+      // console.log("RES SUCCESS: ", res);
     });
     actions.setSubmitting(false);
     setAux(false);

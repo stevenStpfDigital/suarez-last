@@ -38,7 +38,11 @@ import { useParams } from "react-router-dom";
 import CryptoJS from "crypto-js";
 import DBrokerCalendario from "../../components/DBrokerCalendario";
 
-const routesVam = "http://10.147.20.248:3030/api";
+//DEVELOPMENT
+//const routesVam = "http://10.147.20.248:3030/api";
+//LIVE
+const routesVam = "http://localhost:3030/api";
+
 
 export const FiltrosSiniestros = () => {
   const { field_valid } = useParams();

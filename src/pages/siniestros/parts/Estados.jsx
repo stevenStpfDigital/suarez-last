@@ -14,7 +14,10 @@ import { UqaiCalendario } from "../../../components/UqaiCalendario";
 import moment from "moment/moment";
 import DBrokerCalendario from "../../../components/DBrokerCalendario";
 
-const routesVam = "http://10.147.20.248:3030/api";
+//DEVELOPMENT
+//const routesVam = "http://10.147.20.248:3030/api";
+//LIVE
+const routesVam = "http://localhost:3030/api";
 
 export const Estados = ({ estado }) => {
   const form = useRef();
