@@ -22,7 +22,7 @@ export const UqaiCalendario = ({
   showInternalMessage = true,
   ...props
 }) => {
-  console.log("VALUE: ? ", field.value);
+  // console.log("VALUE: ? ", field.value);
   const dateFormat = "DD/MM/YYYY";
   const maxValueFormated = moment(props?.maxValue).format(dateFormat);
   const minValueFormated = moment(props?.minValue).format(dateFormat);
@@ -68,7 +68,7 @@ export const UqaiCalendario = ({
     // setHasError(() => currentHasError);
     // form.setFieldValue(field.name, e instanceof Object ? e?.toDate() : e);
     // props?.getValidatedDate?.(e, currentHasError);
-    console.log("VALYUE?: ", e);
+    //console.log("VALYUE?: ", e);
     form.setFieldValue(field.name, e);
   };
   const formatFieldValue = (value) => moment(value).format(dateFormat);

@@ -11,11 +11,8 @@ function App() {
     <>
       <Routes>
         {/* <Route path="/"> */}
-        <Route
-          path="/siniestros/:field_valid"
-          element={<FiltrosSiniestros />}
-        />
-        <Route path="/siniestros" element={<FiltrosSiniestros />} />
+        <Route path="/:field_valid" element={<FiltrosSiniestros />} />
+        <Route path="/" element={<FiltrosSiniestros />} />
         {/* </Route> */}
       </Routes>
     </>

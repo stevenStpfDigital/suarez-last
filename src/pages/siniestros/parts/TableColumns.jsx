@@ -168,36 +168,18 @@ export const TableColumnsSiniestros = [
     //   return <div>{findList(ejecutivos, row.original.cdEjecutivo)?.label}</div>;
     // },
   },
-  {
-    Header: "Fc. Ultima Gestión",
-    minResizeWidth: 10,
-    filterable: false,
-    accessor: (d) => {
-      return !d.FC_SEGUIMIENTO
-        ? ""
-        : moment(d.FC_SEGUIMIENTO).locale("es").format("DD/MM/YYYY");
-    },
-    id: "FC_ULT_GESTION",
-  },
-  {
-    Header: "Fc. Ocurrencia",
-    minResizeWidth: 10,
-    filterable: false,
-    // accessor: (d) => {
-    //   return !d.FC_SEGUIMIENTO
-    //     ? ""
-    //     : moment(d.FC_SEGUIMIENTO).locale("es").format("DD/MM/YYYY");
-    // },
-    Cell: (row) => {
-      return (
-        <>
-          <FcOcurrencia />
-        </>
-      );
-    },
+  // {
+  //   Header: "Fc. Ultima Gestión",
+  //   minResizeWidth: 10,
+  //   filterable: false,
+  //   accessor: (d) => {
+  //     return !d.FC_SEGUIMIENTO
+  //       ? ""
+  //       : moment(d.FC_SEGUIMIENTO).locale("es").format("DD/MM/YYYY");
+  //   },
+  //   id: "FC_ULT_GESTION",
+  // },
 
-    id: "FC_OCURRENCIA",
-  },
   {
     Header: "Estado",
     width: 450,
@@ -213,6 +195,8 @@ export const TableColumnsSiniestros = [
               dsc_estado: row.original.EST_SINIESTRO,
               cd_reclamo: row.original.CD_RECLAMO,
               cd_sucursal: row.original.CD_COMPANIA,
+              obs_est_siniestro:row.original.OBS_EST_SINIESTRO,
+              fc_ult_gestion:row.original.FC_SEGUIMIENTO
             }}
           />
           {/* <ListObservaciones
@@ -232,7 +216,6 @@ export const TableColumnsSiniestros = [
     accessor: "",
     id: "OBSERVACIONES_ESTADO",
     Cell: (row) => {
-     
       return (
         <>
           <ListObservaciones
@@ -265,15 +248,24 @@ export const TableColumnsSiniestros = [
     // Cell: (row) => <TextComent txt={row.original?.commentario} />,
     // id: "OBS_SINIESTRO",
   },
-  //   {
-  //     Header: "E",
-  //     minResizeWidth: 10,
-  //     filterable: false,
-  //     sortable: false,
-  //     accessor: "obsSiniestro",
-  //     id: "OBS_SINIESTRO",
-  //     Cell: (row) => <ListObservaciones txt={row.original?.obsSiniestro} />,
-  //   },
+
+  {
+    Header: "Fc. Ocurrencia",
+    minResizeWidth: 10,
+    filterable: false,
+    // accessor: (d) => {
+    //   return !d.FC_SEGUIMIENTO
+    //     ? ""
+    //     : moment(d.FC_SEGUIMIENTO).locale("es").format("DD/MM/YYYY");
+    // },
+    accessor: (d) => {
+      return !d.FC_EVENTO
+        ? ""
+        : moment(d.FC_EVENTO).locale("es").format("DD/MM/YYYY");
+    },
+
+    id: "FC_OCURRENCIA",
+  },
   {
     Header: "Usuario",
     minResizeWidth: 10,

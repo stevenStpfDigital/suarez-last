@@ -1,7 +1,7 @@
 import moment from "moment/moment";
 
 function firstDayMonth() {
-  let date = new Date(2000, 0, 1);
+  let date = moment({ year: 2000, month: 0, day: 1 });
   // let date = new Date();
   // date.setFullYear(date.getFullYear() - 1);
   return date;

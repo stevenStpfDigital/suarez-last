@@ -12,6 +12,7 @@ import { UqaiField } from "../../../components/UqaiField";
 import axios from "axios";
 import { UqaiCalendario } from "../../../components/UqaiCalendario";
 import moment from "moment/moment";
+import DBrokerCalendario from "../../../components/DBrokerCalendario";
 
 const routesVam = "http://10.147.20.248:3030/api";
 
@@ -20,6 +21,7 @@ export const Estados = ({ estado }) => {
   const siniestrosData = useSelector((state) => state.estSiniestros.value);
   const [v3, set3] = useState(siniestrosData[0]);
   const [aux, setAux] = useState();
+
 
   const estadoObj = siniestrosData.filter(
     (item) => item.DSC_ESTADO === estado.dsc_estado
@@ -45,7 +47,7 @@ export const Estados = ({ estado }) => {
     };
 
     axios.post(`${routesVam}/nuevoSeguimiento`, nuevoSiniestro).then((res) => {
-     // console.log("Res: ", res);
+      // console.log("Res: ", res);
       actions.setSubmitting(false);
       setAux(false);
     });
@@ -59,29 +61,30 @@ export const Estados = ({ estado }) => {
         initialValues={{
           txt: null,
           cd_estado_siniestro: null,
-          fc_inspecion: moment().format("DD/MM/YYYY"),
+          fc_ult_gestion: moment(estado.fc_ult_gestion),
         }}
         onSubmit={handleOnSubmit}
       >
         {({ resetForm, submitForm, setFieldValue, values, isSubmitting }) => (
           <div className="row ">
-            <Select
-              className={`col-5`}
-              menuPortalTarget={document.body}
-              value={v3}
-              options={siniestrosData}
-              getOptionLabel={(option) => option.DSC_ESTADO}
-              getOptionValue={(option) => option.CD_EST_SINIESTRO}
-              onChange={(valueSelect) => {
-                setFieldValue(
-                  "cd_estado_siniestro",
-                  valueSelect.CD_EST_SINIESTRO
-                );
-                setAux(true);
-                set3(valueSelect);
-                // setValuePrioridad(valueSelect);
-              }}
-            />
+            <div className="col-4">
+              <Select
+                menuPortalTarget={document.body}
+                value={v3}
+                options={siniestrosData}
+                getOptionLabel={(option) => option.DSC_ESTADO}
+                getOptionValue={(option) => option.CD_EST_SINIESTRO}
+                onChange={(valueSelect) => {
+                  setFieldValue(
+                    "cd_estado_siniestro",
+                    valueSelect.CD_EST_SINIESTRO
+                  );
+                  setAux(true);
+                  set3(valueSelect);
+                  // setValuePrioridad(valueSelect);
+                }}
+              />
+            </div>
 
             {/* <div className="col-3">
               <UqaiField
@@ -90,23 +93,25 @@ export const Estados = ({ estado }) => {
                 component={UqaiCalendario}
               />
             </div> */}
-
-            <div className="col-3">
-              <UqaiField
-                type="text"
-                name={"txt"}
-                className={"form-control"}
-                placeholder={"Observacion"}
-              />
-            </div>
-            <div className="col-4">
-              <UqaiField
-                type="date"
-                name={"fc_inspecion"}
-                className={"form-control"}
-                placeholder={"DD/MM/AAAA"}
-              />
-            </div>
+          
+              <div className="col-4">
+                <UqaiField
+                  type="text"
+                  name={"txt"}
+                  className={"form-control"}
+                  placeholder={estado.obs_est_siniestro}
+                />
+              </div>
+              <div className="col-4">
+                <UqaiField
+                  component={DBrokerCalendario}
+                  type="date"
+                  name={"fc_ult_gestion"}
+                  className={"form-control"}
+                  placeholder={"DD/MM/AAAA"}
+                />
+              </div>
+        
 
             {aux && (
               <div className="row">

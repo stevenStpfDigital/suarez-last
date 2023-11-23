@@ -36,6 +36,7 @@ import { save_data_storage_sucursal } from "./redux/sucursalSlice";
 import { save_data_storage_usuarios } from "./redux/usuariosSlice";
 import { useParams } from "react-router-dom";
 import CryptoJS from "crypto-js";
+import DBrokerCalendario from "../../components/DBrokerCalendario";
 
 const routesVam = "http://10.147.20.248:3030/api";
 
@@ -78,7 +79,7 @@ export const FiltrosSiniestros = () => {
 
     if (!field_valid) return;
     const reConstructValue = (str) => {
-      str = str.replace(/\._3z/g, "/");
+      str = str.replace(/\_/g, "/");
 
       return str;
     };
@@ -89,7 +90,7 @@ export const FiltrosSiniestros = () => {
     };
 
     const emailUser = decryptEmail(reConstructValue(field_valid));
-    console.log("EMAIL YUSER: ",emailUser)
+    //console.log("EMAIL YUSER: ", JSON.parse(emailUser));
   }, [field_valid]);
   useEffect(() => {
     setNewQuery(defaultNuevoSiniestroFilter());
@@ -226,6 +227,8 @@ export const FiltrosSiniestros = () => {
     return object;
   }
   const fetchDataDbroker = (q, actions) => {
+    const backFormat = "DD/MM/YYYY";
+    const formatFieldValue = (value) => moment(value).format(backFormat);
     setData({
       loading: true,
       ...data,
@@ -239,22 +242,22 @@ export const FiltrosSiniestros = () => {
     if (!queryDbroker.checkFcIngreso) {
       queryDbroker.fcIngreso = "01/01/1900 ";
     } else {
-      queryDbroker.fcIngreso = formatDateDBroker(queryDbroker.fcIngreso);
+      queryDbroker.fcIngreso = formatFieldValue(queryDbroker.fcIngreso);
     }
     if (!queryDbroker.checkFcEvento) {
       queryDbroker.fcEvento = "01/01/1900 ";
     } else {
-      queryDbroker.fcEvento = formatDateDBroker(queryDbroker.fcEvento);
+      queryDbroker.fcEvento = formatFieldValue(queryDbroker.fcEvento);
     }
     if (!queryDbroker.checkFcRecepcion) {
       queryDbroker.fcRecepcion = "01/01/1900 ";
     } else {
-      queryDbroker.fcRecepcion = formatDateDBroker(queryDbroker.fcRecepcion);
+      queryDbroker.fcRecepcion = formatFieldValue(queryDbroker.fcRecepcion);
     }
     if (!queryDbroker.checkFcGestion) {
       queryDbroker.fcGestion = "01/01/1900 ";
     } else {
-      queryDbroker.fcGestion = formatDateDBroker(queryDbroker.fcGestion);
+      queryDbroker.fcGestion = formatFieldValue(queryDbroker.fcGestion);
     }
 
     const {
@@ -264,9 +267,9 @@ export const FiltrosSiniestros = () => {
       checkFcGestion,
       ...rest
     } = queryDbroker;
-    //console.log("QUERY: ", rest);
+    //("QUERY: ", rest);
     axios.post(`${routesVam}/Siniestros`, rest).then((res) => {
-      //console.log("SINIESTROS RESPONSE: ", res);
+    //  console.log("SINIESTROS RESPONSE: ", res);
       setData({
         data: res.data || [],
         // data: res.data.slice(0, 1) || [],
@@ -839,9 +842,11 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
                             </div>
                             <div className="col-11">
                               <UqaiField
+                                component={DBrokerCalendario}
+                                type="date"
                                 name="fcIngreso"
-                                placeholder="Ingrese Fecha"
-                                component={UqaiCalendario}
+                                className="form-control"
+                                placeholder="DD/MM/AAAA"
                               />
                             </div>
                           </div>
@@ -859,9 +864,11 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
                             </div>
                             <div className="col-11">
                               <UqaiField
+                                component={DBrokerCalendario}
+                                type="date"
                                 name="fcEvento"
-                                placeholder="Ingrese Fecha"
-                                component={UqaiCalendario}
+                                className="form-control"
+                                placeholder="DD/MM/AAAA"
                               />
                             </div>
                           </div>
@@ -879,9 +886,11 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
                             </div>
                             <div className="col-11">
                               <UqaiField
+                                component={DBrokerCalendario}
+                                type="date"
                                 name="fcRecepcion"
-                                placeholder="Ingrese Fecha"
-                                component={UqaiCalendario}
+                                className="form-control"
+                                placeholder="DD/MM/AAAA"
                               />
                             </div>
                           </div>
@@ -899,9 +908,11 @@ const FiltosComponent = ({ query, onSubmit, handleResetForm, selectsData }) => {
                             </div>
                             <div className="col-11">
                               <UqaiField
+                                component={DBrokerCalendario}
+                                type="date"
                                 name="fcGestion"
-                                placeholder="Ingrese Fecha"
-                                component={UqaiCalendario}
+                                className="form-control"
+                                placeholder="DD/MM/AAAA"
                               />
                             </div>
                           </div>
@@ -1273,11 +1284,16 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
     }
   };
   const onSubmit = async (newValues, actions) => {
-    const values = { ...newValues, fcRecepcion: null, fcEvento: null };
-    // console.log("VALUES?_ ", values);
+    const backFormat = "DD/MM/YYYY";
+    const formatFieldValue = (value) => moment(value).format(backFormat);
+    let values = { ...newValues };
+    values.fcRecepcion = formatFieldValue(values.fcRecepcion);
+    values.fcEvento = formatFieldValue(values.fcEvento);
+
+    //  console.log("VALUES?_ ", values);
     try {
       const response = await axios.post(`${routesVam}/nuevoSiniestro`, values);
-      //console.log("SUCCES? : ", response);
+      // console.log("SUCCES? : ", response);
       setResultNewSiniestro(true);
     } catch (error) {
       console.log("ERROR: ", error);
@@ -1539,10 +1555,13 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
                   <label className="form-label fw-bold text-secondary fs-7">
                     Fc. Recepcion:
                   </label>
+
                   <UqaiField
+                    component={DBrokerCalendario}
+                    type="date"
                     name="fcRecepcion"
-                    placeholder="Ingrese Fecha"
-                    component={UqaiCalendario}
+                    className="form-control"
+                    placeholder="DD/MM/AAAA"
                   />
                 </div>
                 <div className="col-2">
@@ -1550,9 +1569,11 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
                     Fc. Evento:
                   </label>
                   <UqaiField
+                    component={DBrokerCalendario}
+                    type="date"
                     name="fcEvento"
-                    placeholder="Ingrese Fecha"
-                    component={UqaiCalendario}
+                    className="form-control"
+                    placeholder="DD/MM/AAAA"
                   />
                 </div>
 
