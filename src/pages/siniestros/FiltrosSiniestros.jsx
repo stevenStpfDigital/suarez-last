@@ -34,10 +34,13 @@ import { save_data_storage_aseguradoras } from "./redux/aseguradorasSlice";
 import { save_data_storage_ramos } from "./redux/ramosSlice";
 import { save_data_storage_sucursal } from "./redux/sucursalSlice";
 import { save_data_storage_usuarios } from "./redux/usuariosSlice";
+import { useParams } from "react-router-dom";
+import CryptoJS from "crypto-js";
 
 const routesVam = "http://10.147.20.248:3030/api";
 
 export const FiltrosSiniestros = () => {
+  const { field_valid } = useParams();
   const [data, setData] = useState({
     data: [],
     // pages: 0,
@@ -69,6 +72,25 @@ export const FiltrosSiniestros = () => {
 
   const form = useRef();
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const secretKey = "$$vC2x1_?mK";
+
+    if (!field_valid) return;
+    const reConstructValue = (str) => {
+      str = str.replace(/\._3z/g, "/");
+
+      return str;
+    };
+    const decryptEmail = (value) => {
+      const bytes = CryptoJS.AES.decrypt(value, secretKey);
+      const decryptedEmail = bytes.toString(CryptoJS.enc.Utf8);
+      return decryptedEmail;
+    };
+
+    const emailUser = decryptEmail(reConstructValue(field_valid));
+    console.log("EMAIL YUSER: ",emailUser)
+  }, [field_valid]);
   useEffect(() => {
     setNewQuery(defaultNuevoSiniestroFilter());
     setNewSiniestroValues(defaultNuevoSiniestro());
@@ -1104,7 +1126,7 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
         cdCliente: "%", //cdClienteAux
       };
       axios.post(`${routesVam}/placas`, obj).then((res) => {
-       // console.log("RESPONSE PLACAS: ", res);
+        // console.log("RESPONSE PLACAS: ", res);
         setPlacaSelect(res.data);
       });
     }

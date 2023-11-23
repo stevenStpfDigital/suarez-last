@@ -2,6 +2,7 @@ import Datetime from "react-datetime";
 import moment from "moment";
 import React, { useState } from "react";
 import memoize from "memoize-one";
+import { Field } from "formik";
 
 export const formatDate = memoize((value) => {
   return value
@@ -21,6 +22,7 @@ export const UqaiCalendario = ({
   showInternalMessage = true,
   ...props
 }) => {
+  console.log("VALUE: ? ", field.value);
   const dateFormat = "DD/MM/YYYY";
   const maxValueFormated = moment(props?.maxValue).format(dateFormat);
   const minValueFormated = moment(props?.minValue).format(dateFormat);
@@ -34,38 +36,40 @@ export const UqaiCalendario = ({
   const [hasError, setHasError] = useState(false);
 
   const handleValidDate = (e) => {
-    let currentHasError = false;
-    if (typeof e === "string" && e.length >= 8) {
-      e = e.slice(0, 2) + "/" + e.slice(2, 4) + "/" + e.slice(4, 8);
-      e = moment(e, dateFormat);
-    }
-    if (e instanceof Object) {
-      let isValidDate = e._isValid;
-      if (props?.maxValue)
-        isValidDate =
-          isValidDate &&
-          (e.isBefore(props?.maxValue) || e.isSame(new Date(), "day"));
-      if (props?.minValue)
-        isValidDate =
-          isValidDate &&
-          (e.isAfter(props?.minValue) || e.isSame(new Date(), "day"));
-      e = moment(
-        e.format(dateFormat) + " " + moment().format("HH:mm:ss"),
-        `${dateFormat} HH:mm:ss`
-      );
-      props?.onFieldSet?.(e.toDate());
-      currentHasError = !isValidDate;
-    } else {
-      currentHasError = true;
-      if (e.length === 0) {
-        form.setFieldValue(field.name, "");
-        props?.onFieldSet?.("");
-        currentHasError = false;
-      }
-    }
-    setHasError(() => currentHasError);
-    form.setFieldValue(field.name, e instanceof Object ? e?.toDate() : e);
-    props?.getValidatedDate?.(e, currentHasError);
+    // let currentHasError = false;
+    // if (typeof e === "string" && e.length >= 8) {
+    //   e = e.slice(0, 2) + "/" + e.slice(2, 4) + "/" + e.slice(4, 8);
+    //   e = moment(e, dateFormat);
+    // }
+    // if (e instanceof Object) {
+    //   let isValidDate = e._isValid;
+    //   if (props?.maxValue)
+    //     isValidDate =
+    //       isValidDate &&
+    //       (e.isBefore(props?.maxValue) || e.isSame(new Date(), "day"));
+    //   if (props?.minValue)
+    //     isValidDate =
+    //       isValidDate &&
+    //       (e.isAfter(props?.minValue) || e.isSame(new Date(), "day"));
+    //   e = moment(
+    //     e.format(dateFormat) + " " + moment().format("HH:mm:ss"),
+    //     `${dateFormat} HH:mm:ss`
+    //   );
+    //   props?.onFieldSet?.(e.toDate());
+    //   currentHasError = !isValidDate;
+    // } else {
+    //   currentHasError = true;
+    //   if (e.length === 0) {
+    //     form.setFieldValue(field.name, "");
+    //     props?.onFieldSet?.("");
+    //     currentHasError = false;
+    //   }
+    // }
+    // setHasError(() => currentHasError);
+    // form.setFieldValue(field.name, e instanceof Object ? e?.toDate() : e);
+    // props?.getValidatedDate?.(e, currentHasError);
+    console.log("VALYUE?: ", e);
+    form.setFieldValue(field.name, e);
   };
   const formatFieldValue = (value) => moment(value).format(dateFormat);
 
@@ -75,21 +79,31 @@ export const UqaiCalendario = ({
   return (
     <>
       <Datetime
+        // className={props.className}
+        // {...props}
+        // dateFormat={dateFormat}
+        // timeFormat={false}
+        // initialViewDate={formatFieldValue(field.value)}
+        // value={formatFieldValue(field.value)}
+        // onChange={handleValidDate}
+        // closeOnSelect={true}
+        // onOpen={() => form.setFieldTouched(field.name, true)}
+        // inputProps={{
+        //   disabled: !!props.readOnly,
+        //   placeholder: dateFormat,
+        // }}
+        // renderInput={(props) => {
+        //   return <input {...props} value={field.value ? props.value : ""} />;
+        // }}
         className={props.className}
         {...props}
-        dateFormat={dateFormat}
-        timeFormat={false}
-        initialViewDate={formatFieldValueDBroker(
-          field.value || props?.maxValue
-        )}
-        value={formatFieldValueDBroker(field.value)}
+        initialViewDate={field.value}
+        initialValue={field.value}
+        value={field.value}
         onChange={handleValidDate}
         closeOnSelect={true}
-        onOpen={() => form.setFieldTouched(field.name, true)}
-        inputProps={{
-          disabled: !!props.readOnly,
-          placeholder: dateFormat,
-        }}
+        dateFormat={dateFormat}
+        timeFormat={false}
         renderInput={(props) => {
           return <input {...props} value={field.value ? props.value : ""} />;
         }}

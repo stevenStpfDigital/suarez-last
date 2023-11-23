@@ -1,7 +1,16 @@
+import moment from "moment/moment";
+
 function firstDayMonth() {
   let date = new Date(2000, 0, 1);
   // let date = new Date();
   // date.setFullYear(date.getFullYear() - 1);
+  return date;
+}
+
+function actualDate() {
+  // let date = new Date(2000, 0, 1);
+  let date = moment();
+  //date.setFullYear(date.getFullYear() - 1);
   return date;
 }
 
@@ -38,10 +47,10 @@ export const defaultNuevoSiniestro = () => {
     cdCliente: null,
     cdAseguradora: null,
     cdSucursal: null,
-    fcRecepcion: firstDayMonth(),
+    fcRecepcion: actualDate(),
     cdRamo: null,
     poliza: null,
-    fcEvento: firstDayMonth(),
+    fcEvento: actualDate(),
     nmAsegurado: null,
     tpDiagnostico: null,
     nmDiagnostico: null,
@@ -52,8 +61,8 @@ export const defaultNuevoSiniestro = () => {
     cdFactAseg: null,
     cdAnexo: null,
     nmRamo: null,
-    cdAsegurado:null,
-    cdDiagnostico:null
+    cdAsegurado: null,
+    cdDiagnostico: null,
   };
 };
 
@@ -125,5 +134,3 @@ export const AUX_CHECK_CONTROLLER = [
   "checkFcRecepcion",
   "checkFcGestion",
 ];
-
-

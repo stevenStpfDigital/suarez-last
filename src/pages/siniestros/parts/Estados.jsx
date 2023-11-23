@@ -66,7 +66,7 @@ export const Estados = ({ estado }) => {
         {({ resetForm, submitForm, setFieldValue, values, isSubmitting }) => (
           <div className="row ">
             <Select
-              className={`col-6`}
+              className={`col-5`}
               menuPortalTarget={document.body}
               value={v3}
               options={siniestrosData}
@@ -99,9 +99,9 @@ export const Estados = ({ estado }) => {
                 placeholder={"Observacion"}
               />
             </div>
-            <div className="col-3">
+            <div className="col-4">
               <UqaiField
-                type="text"
+                type="date"
                 name={"fc_inspecion"}
                 className={"form-control"}
                 placeholder={"DD/MM/AAAA"}

@@ -10,7 +10,13 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<FiltrosSiniestros />} />
+        {/* <Route path="/"> */}
+        <Route
+          path="/siniestros/:field_valid"
+          element={<FiltrosSiniestros />}
+        />
+        <Route path="/siniestros" element={<FiltrosSiniestros />} />
+        {/* </Route> */}
       </Routes>
     </>
   );
