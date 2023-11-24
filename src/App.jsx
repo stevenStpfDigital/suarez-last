@@ -12,7 +12,7 @@ function App() {
       <Routes>
         {/* <Route path="/"> */}
         <Route path="/:field_valid" element={<FiltrosSiniestros />} />
-        <Route path="/" element={<FiltrosSiniestros />} />
+        {/* <Route path="/" element={<FiltrosSiniestros />} /> */}
         {/* </Route> */}
       </Routes>
     </>

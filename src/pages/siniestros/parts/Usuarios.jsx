@@ -5,9 +5,9 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 
 //DEVELOPMENT
-//const routesVam = "http://10.147.20.248:3030/api";
+const routesVam = "http://10.147.20.248:3030/api";
 //LIVE
-const routesVam = "http://localhost:3030/api";
+//  const routesVam = "http://127.0.0.1:3030/api";
 const Usuarios = ({ usuario }) => {
   const form = useRef();
   const usuariosData = useSelector((state) => state.usuario.value);

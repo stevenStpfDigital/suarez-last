@@ -15,9 +15,9 @@ import moment from "moment/moment";
 import DBrokerCalendario from "../../../components/DBrokerCalendario";
 
 //DEVELOPMENT
-//const routesVam = "http://10.147.20.248:3030/api";
+const routesVam = "http://10.147.20.248:3030/api";
 //LIVE
-const routesVam = "http://localhost:3030/api";
+//  const routesVam = "http://127.0.0.1:3030/api";
 
 export const Estados = ({ estado }) => {
   const form = useRef();

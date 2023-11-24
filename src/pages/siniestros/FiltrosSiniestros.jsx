@@ -37,12 +37,12 @@ import { save_data_storage_usuarios } from "./redux/usuariosSlice";
 import { useParams } from "react-router-dom";
 import CryptoJS from "crypto-js";
 import DBrokerCalendario from "../../components/DBrokerCalendario";
+import ObsEstadoHistorial from "./parts/ObsEstadoHistorial";
 
 //DEVELOPMENT
-//const routesVam = "http://10.147.20.248:3030/api";
+const routesVam = "http://10.147.20.248:3030/api";
 //LIVE
-const routesVam = "http://localhost:3030/api";
-
+//  const routesVam = "http://127.0.0.1:3030/api";
 
 export const FiltrosSiniestros = () => {
   const { field_valid } = useParams();
@@ -94,7 +94,8 @@ export const FiltrosSiniestros = () => {
     };
 
     const emailUser = decryptEmail(reConstructValue(field_valid));
-    //console.log("EMAIL YUSER: ", JSON.parse(emailUser));
+
+    console.log("EMAIL YUSER: ", JSON.parse(emailUser));
   }, [field_valid]);
   useEffect(() => {
     setNewQuery(defaultNuevoSiniestroFilter());
@@ -117,15 +118,11 @@ export const FiltrosSiniestros = () => {
         { ID: "%", ALIAS: "TODOS" },
         ...res.data, // Mantén los elementos existentes
       ];
-      // console.log("RESPONSE ASEGURADO: ", res.data);
+
       setAseguradora(dataWithTodos);
       setAseguradoraSiniestro(res.data);
       dispatch(save_data_storage_aseguradoras(res.data));
     });
-    // .catch((error) => {
-    //   console.log("LLAMADO A: ", `${routesVam.dbroker}/aliasAseguradora`);
-    //   console.log("ERROR RESPONSE:", error);
-    // });
   };
   const getAgentes = () => {
     axios.get(`${routesVam}/Agentes`).then((res) => {
@@ -133,7 +130,7 @@ export const FiltrosSiniestros = () => {
         { ID: "%", AGENTE: "TODOS" },
         ...res.data, // Mantén los elementos existentes
       ];
-      //  console.log("RESPONSE ASEGURADO: ", res.data);
+
       setAgentes(dataWithTodos);
     });
   };
@@ -143,7 +140,6 @@ export const FiltrosSiniestros = () => {
         { CD_EST_SINIESTRO: "%", DSC_ESTADO: "TODOS" },
         ...res.data, // Mantén los elementos existentes
       ];
-
       dispatch(save_data_storage(res.data));
       setEstSiniestro(dataWithTodos);
     });
@@ -156,8 +152,6 @@ export const FiltrosSiniestros = () => {
       ];
       setRamos(dataWithTodos);
       dispatch(save_data_storage_ramos(res.data));
-
-      //console.log("dataWithTodos", dataWithTodos);
     });
   };
   const getSucursal = () => {
@@ -214,9 +208,7 @@ export const FiltrosSiniestros = () => {
   };
 
   const handleResetForm = (resetForm) => {
-    //etReset(true);
     setData({ data: [], pages: 0, page: 0, loading: false, pageSize: 10 });
-    // setNewQuery(defaultNuevoSiniestro());
     resetForm();
   };
 
@@ -271,12 +263,12 @@ export const FiltrosSiniestros = () => {
       checkFcGestion,
       ...rest
     } = queryDbroker;
-    //("QUERY: ", rest);
+    console.log("QUERY: ", rest);
     axios.post(`${routesVam}/Siniestros`, rest).then((res) => {
-    //  console.log("SINIESTROS RESPONSE: ", res);
+      console.log("SINIESTROS RESPONSE: ", res);
       setData({
-        data: res.data || [],
-        // data: res.data.slice(0, 1) || [],
+        //data: res.data || [],
+        data: res.data.slice(0, 1) || [],
         loading: false,
         pageSize: 10,
       });
@@ -286,15 +278,6 @@ export const FiltrosSiniestros = () => {
   const onSubmit = (newValues, actions) => {
     const formattedValues = replaceNullsWithPercentage(newValues);
 
-    // formatDateDBroker(formattedValues.fcIngreso)
-    // formatDateDBroker(formattedValues.fcEvento)
-    // formatDateDBroker(formattedValues.fcRecepcion)
-    // formatDateDBroker(formattedValues.fcGestion)
-
-    // setQuery({ ...newValues, page: 0 });
-    // fetchData({ ...newValues, page: 0 });
-    // actions?.setSubmitting(false);
-    // setFirst(false);
     fetchDataDbroker(formattedValues, actions);
   };
   function calcularDiferenciaEnDias(date) {
@@ -1685,41 +1668,7 @@ const ModalNewSiniestro = ({ open, setOpen, query, form, selectsData }) => {
 };
 
 export const ListObservaciones = ({ data, ...props }) => {
-  const [list, setList] = useState([]);
   const [open, setOpen] = useState(false);
-  const [newEstado, setNewEstado] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.post(`${routesVam}/seguimientos`, data);
-        // console.log("RES OBSERVACION:", response.data);
-        response.data.FC_CREACION = moment(response.data.FC_CREACION)
-          .locale("es")
-          .format("DD/MM/YYYY");
-        if (isLoading) {
-          setList(response.data);
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.log("ERROR: ", error);
-      }
-    };
-
-    fetchData();
-
-    return () => {
-      // console.log("UNMOUNTING COMPONENT ------------------>>>>>>>");
-    };
-  }, [data, isLoading]);
-
-  const defineWidth = (length) => {
-    if (length < 50) return "100%";
-    if (length < 100) return "200px";
-    if (length < 200) return "400px";
-    return "500px";
-  };
 
   return (
     // <LoadingContextProvider>
@@ -1730,92 +1679,7 @@ export const ListObservaciones = ({ data, ...props }) => {
       >
         <i className={`icon-uqai uqai-ver`} />
       </AccionButton>
-      {open && (
-        <Modal isOpen={open} toggle={() => setOpen(false)} size="xl" centered>
-          <UqaiModalHeader
-            toggle={() => setOpen(false)}
-            title="Estados del Siniestro"
-          />
-          <ModalBody>
-            <div className="table-responsive">
-              <br />
-              <table className="table table-borderless table-hover">
-                <thead>
-                  <tr className="text-secondary">
-                    <th className="bg-white">Fecha</th>
-                    <th className="bg-white">Estado</th>
-                    <th className="bg-white">Observación</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(list || []).map((x, index) => (
-                    <tr key={x.CD_INSPECCION}>
-                      <td className="w-25" style={{ minWidth: "100px" }}>
-                        <div>
-                          {moment(x.FC_CREACION)
-                            .locale("es")
-                            .format("DD/MM/YYYY")}
-                        </div>
-                      </td>
-                      <td className="w-25" style={{ minWidth: "100px" }}>
-                        <div>{x.DSC_ESTADO}</div>
-                      </td>
-                      <td className="w-100">
-                        <textarea
-                          disabled
-                          style={{
-                            width: "100%",
-                            minWidth: defineWidth(x.OBSERVACIONES?.length),
-                          }}
-                          value={x.OBSERVACIONES || ""}
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {/* {newEstado ? (
-                    <div>
-                      <button
-                        className="btn btn-danger mx-2 mt-2 mt-sm-0"
-                        onClick={() => {
-                          setNewEstado(false);
-                          const updatedList = list.filter(
-                            (item) => item.editable !== true
-                          );
-                          setList(updatedList);
-                        }}
-                      >
-                        Cancelar
-                      </button>
-                      <button
-                        className="btn btn-alternative mx-2 mt-2 mt-sm-0"
-                        onClick={() => {}}
-                      >
-                        Guardar
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      className="btn btn-info mt-2 mt-sm-0"
-                      onClick={() => {
-                        const newRow = {
-                          estado: "INGRESADO",
-                          fecha: moment().format("DD-MM-YYYY HH:mm:ss"),
-                          comentario: "",
-                          editable: true,
-                        };
-                        setList([...list, newRow]);
-                        setNewEstado(true);
-                      }}
-                    >
-                      Nuevo siniestro estado
-                    </button>
-                  )} */}
-            </div>
-          </ModalBody>
-        </Modal>
-      )}
+      {open && <ObsEstadoHistorial data={data} open={open} setOpen={setOpen} />}
     </div>
     // </LoadingContextProvider>
   );
