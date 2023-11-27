@@ -1,22 +1,27 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-
-import { Route, Routes } from "react-router-dom";
+import {
+  Route,
+  RouterProvider,
+  Routes,
+  createBrowserRouter,
+} from "react-router-dom";
 import { FiltrosSiniestros } from "./pages/siniestros/FiltrosSiniestros";
+import PageNotFound from "./layout/PageNotFound";
+
+const router = createBrowserRouter([
+  {
+    path: "/:field_valid",
+    element: <FiltrosSiniestros />,
+    errorElement: <PageNotFound />,
+  },
+  {
+    path: "*",
+    element: <PageNotFound />,
+  },
+]);
 
 function App() {
-  const [count, setCount] = useState(0);
-
-  return (
-    <>
-      <Routes>
-        {/* <Route path="/"> */}
-        <Route path="/:field_valid" element={<FiltrosSiniestros />} />
-        {/* <Route path="/" element={<FiltrosSiniestros />} /> */}
-        {/* </Route> */}
-      </Routes>
-    </>
-  );
+  return <RouterProvider router={router}></RouterProvider>;
 }
 
 export default App;

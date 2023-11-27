@@ -24,16 +24,16 @@ export const HeaderDBroker = ({ transparent, title }) => {
         className={`border-bottom border-2 border-success py-1 ${bgColor}`}
       >
         <Container fluid className="ps-2 ps-xl-4 ms-md-2 pe-0">
-          <Navbar.Brand href={`/`} className="p-0">
+          <Navbar.Brand
+            href={`https://consultas.segurossuarez.com/`}
+            className="p-0"
+          >
             <img src={logo} className="d-none d-md-block" alt="logo" />
             <img src={logoSmall} className="d-block d-md-none" alt="logo" />
           </Navbar.Brand>
           <Navbar.Collapse className="border-end border-1 border-white py-1 py-xxl-2">
             <div className="d-none d-xl-flex align-items-center ms-5 py-1 py-md-2">
-              <Link
-                to={`/`}
-                className="text-white text-decoration-none"
-              >
+              <Link to={`/`} className="text-white text-decoration-none">
                 <h2 className="my-0 fw-bold">SS Online</h2>
               </Link>
               {title && (

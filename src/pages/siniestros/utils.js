@@ -134,3 +134,37 @@ export const AUX_CHECK_CONTROLLER = [
   "checkFcRecepcion",
   "checkFcGestion",
 ];
+
+
+// VALIDATION 
+// export const v_filtro = yup.object().shape({
+//   fcCreacionDesde: yup.date().required(REQUERIDO).typeError("Fecha inválida"),
+//   fcCreacionHasta: yup
+//     .date()
+//     .required(REQUERIDO)
+//     .test(
+//       "test fcCreacionHasta",
+//       "Fecha inválida - Debe ser mayor o igual a Fc.Creación Desde",
+//       (value, context) => {
+//         const fcDdesde = context.parent.fcCreacionDesde;
+//         return getDaysBetweenDates(fcDdesde, value) >= 0;
+//       }
+//     )
+//     .typeError("Fecha inválida"),
+//   fcIncurrenciaDesde: yup
+//     .date()
+//     .required(REQUERIDO)
+//     .typeError("Fecha inválida"),
+//   fcIncurrenciaHasta: yup
+//     .date()
+//     .required(REQUERIDO)
+//     .test(
+//       "test fcincurrenciahasta",
+//       "Fecha inválida - Debe ser mayor o igual a Fc.Incurrencia Desde",
+//       (value, context) => {
+//         const fcDdesde = context.parent.fcIncurrenciaDesde;
+//         return getDaysBetweenDates(fcDdesde, value) >= 0;
+//       }
+//     )
+//     .typeError("Fecha inválida"),
+// });
