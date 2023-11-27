@@ -49,7 +49,7 @@ export const Estados = ({ estado }) => {
       cd_estado_siniestro: newValues.cd_estado_siniestro,
     };
 
-    axios.post(`${routesVam}/nuevoSeguimiento`, nuevoSiniestro).then((res) => {
+    axios.post(`${process.env.REACT_APP_API_URL}/nuevoSeguimiento`, nuevoSiniestro).then((res) => {
       // console.log("Res: ", res);
       actions.setSubmitting(false);
       setAux(false);

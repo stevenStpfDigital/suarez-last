@@ -74,7 +74,7 @@ const ModalNuevoSiniestro = ({
         poliza: "%", // valuePolizaSelect.POLIZA,
         cdCliente: "%", //cdClienteAux
       };
-      axios.post(`${routesVam}/placas`, obj).then((res) => {
+      axios.post(`${process.env.REACT_APP_API_URL}/placas`, obj).then((res) => {
         // console.log("RESPONSE PLACAS: ", res);
         setPlacaSelect(res.data);
       });
@@ -148,7 +148,7 @@ const ModalNuevoSiniestro = ({
       };
 
       const res = await axios.post(
-        `${routesVam}/aliasAseguradora/cliente`,
+        `${process.env.REACT_APP_API_URL}/aliasAseguradora/cliente`,
         obj
       );
 
@@ -189,7 +189,7 @@ const ModalNuevoSiniestro = ({
 
   const searchDataPoliza = async (values) => {
     try {
-      const response = await axios.post(`${routesVam}/polizas`, values);
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/polizas`, values);
       // console.log("VALUES: ", values);
       // console.log("RESPONSE POliza: ", response.data);
       setResulSearch(response.data);
@@ -202,7 +202,7 @@ const ModalNuevoSiniestro = ({
   };
   const searchDataAsegurados = async (values) => {
     try {
-      const response = await axios.post(`${routesVam}/Asegurados`, values);
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/Asegurados`, values);
 
       const arrayDeObjetos = Object.keys(response.data).map((clave) => {
         return { value: response.data[clave], label: response.data[clave] };
@@ -222,7 +222,7 @@ const ModalNuevoSiniestro = ({
 
     //  console.log("VALUES?_ ", values);
     try {
-      const response = await axios.post(`${routesVam}/nuevoSiniestro`, values);
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/nuevoSiniestro`, values);
       // console.log("SUCCES? : ", response);
       setResultNewSiniestro(true);
     } catch (error) {

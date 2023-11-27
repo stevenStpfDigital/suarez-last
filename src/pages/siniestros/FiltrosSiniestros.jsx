@@ -84,9 +84,6 @@ export const FiltrosSiniestros = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    console.log("strike: ", field_valid);
-    const secretKey = "$$vC2x1_?mK";
-
     if (!field_valid) return;
     const reConstructValue = (str) => {
       str = str.replace(/\_/g, "/");
@@ -94,26 +91,32 @@ export const FiltrosSiniestros = () => {
       return str;
     };
     const decryptEmail = (value) => {
-      const bytes = CryptoJS.AES.decrypt(value, secretKey);
+      const bytes = CryptoJS.AES.decrypt(
+        value,
+        process.env.REACT_APP_SECRET_KEY
+      );
       const decryptedEmail = bytes.toString(CryptoJS.enc.Utf8);
       return decryptedEmail;
     };
 
     const emailUser = decryptEmail(reConstructValue(field_valid));
-    //DEVEOLPment
+    const emailUserJson = JSON.parse(emailUser);
+
     const correo = {
-      correo: "czhunio@segurossuarez.com",
+      correo: emailUserJson.email,
     };
 
-    axios.post(`${routesVam}/Usuarios/login`, correo).then((res) => {
-      if (res.data[0]) {
-        save_data_storage_usuariosDBroker(res.data[0]);
-        setDBrokerUSer(res.data[0]);
-      }
-    });
-    if (emailUser) {
-      console.log("PROPS: ", JSON.parse(emailUser));
-    }
+    axios
+      .post(`${process.env.REACT_APP_API_URL}/Usuarios/login`, correo)
+      .then((res) => {
+        if (res.data[0]) {
+          save_data_storage_usuariosDBroker(res.data[0]);
+          setDBrokerUSer(res.data[0]);
+        }
+      })
+      .catch((error) => {
+        console.log("ERROR: ", error);
+      });
   }, [field_valid]);
 
   useEffect(() => {
@@ -132,19 +135,21 @@ export const FiltrosSiniestros = () => {
   }, []);
 
   const getAseguradora = () => {
-    axios.get(`${routesVam}/aliasAseguradora`).then((res) => {
-      const dataWithTodos = [
-        { ID: "%", ALIAS: "TODOS" },
-        ...res.data, // Mantén los elementos existentes
-      ];
+    axios
+      .get(`${process.env.REACT_APP_API_URL}/aliasAseguradora`)
+      .then((res) => {
+        const dataWithTodos = [
+          { ID: "%", ALIAS: "TODOS" },
+          ...res.data, // Mantén los elementos existentes
+        ];
 
-      setAseguradora(dataWithTodos);
-      setAseguradoraSiniestro(res.data);
-      dispatch(save_data_storage_aseguradoras(res.data));
-    });
+        setAseguradora(dataWithTodos);
+        setAseguradoraSiniestro(res.data);
+        dispatch(save_data_storage_aseguradoras(res.data));
+      });
   };
   const getAgentes = () => {
-    axios.get(`${routesVam}/Agentes`).then((res) => {
+    axios.get(`${process.env.REACT_APP_API_URL}/Agentes`).then((res) => {
       const dataWithTodos = [
         { ID: "%", AGENTE: "TODOS" },
         ...res.data, // Mantén los elementos existentes
@@ -154,17 +159,19 @@ export const FiltrosSiniestros = () => {
     });
   };
   const getEstSiniestro = () => {
-    axios.get(`${routesVam}/EstadosSiniestros`).then((res) => {
-      const dataWithTodos = [
-        { CD_EST_SINIESTRO: "%", DSC_ESTADO: "TODOS" },
-        ...res.data, // Mantén los elementos existentes
-      ];
-      dispatch(save_data_storage(res.data));
-      setEstSiniestro(dataWithTodos);
-    });
+    axios
+      .get(`${process.env.REACT_APP_API_URL}/EstadosSiniestros`)
+      .then((res) => {
+        const dataWithTodos = [
+          { CD_EST_SINIESTRO: "%", DSC_ESTADO: "TODOS" },
+          ...res.data, // Mantén los elementos existentes
+        ];
+        dispatch(save_data_storage(res.data));
+        setEstSiniestro(dataWithTodos);
+      });
   };
   const getRamosDBroker = () => {
-    axios.get(`${routesVam}/Ramos`).then((res) => {
+    axios.get(`${process.env.REACT_APP_API_URL}/Ramos`).then((res) => {
       const dataWithTodos = [
         { CD_RAMO: "%", NM_RAMO: "TODOS" },
         ...res.data, // Mantén los elementos existentes
@@ -174,7 +181,7 @@ export const FiltrosSiniestros = () => {
     });
   };
   const getSucursal = () => {
-    axios.get(`${routesVam}/Sucursales`).then((res) => {
+    axios.get(`${process.env.REACT_APP_API_URL}/Sucursales`).then((res) => {
       const dataWithTodos = [
         { ID: "%", SUCURSAL: "TODOS" },
         ...res.data, // Mantén los elementos existentes
@@ -185,7 +192,7 @@ export const FiltrosSiniestros = () => {
     });
   };
   const getUsuariosD = () => {
-    axios.get(`${routesVam}/Usuarios`).then((res) => {
+    axios.get(`${process.env.REACT_APP_API_URL}/Usuarios`).then((res) => {
       const dataWithTodos = [
         { USUARIO: "%", NOMBRE: "TODOS" },
         ...res.data, // Mantén los elementos existentes
@@ -195,7 +202,7 @@ export const FiltrosSiniestros = () => {
     });
   };
   const getSubArea = () => {
-    axios.get(`${routesVam}/Subareas`).then((res) => {
+    axios.get(`${process.env.REACT_APP_API_URL}/Subareas`).then((res) => {
       const dataWithTodos = [
         { ID: "%", SUBAREA: "TODOS" },
         ...res.data, // Mantén los elementos existentes
@@ -204,7 +211,7 @@ export const FiltrosSiniestros = () => {
     });
   };
   const getPlacas = () => {
-    axios.get(`${routesVam}/placas`).then((res) => {
+    axios.get(`${process.env.REACT_APP_API_URL}/placas`).then((res) => {
       const dataWithTodos = [
         { ID: "%", SUBAREA: "TODOS" },
         ...res.data, // Mantén los elementos existentes
@@ -215,7 +222,7 @@ export const FiltrosSiniestros = () => {
   };
 
   const getTallers = () => {
-    axios.get(`${routesVam}/talleres`).then((res) => {
+    axios.get(`${process.env.REACT_APP_API_URL}/talleres`).then((res) => {
       const dataWithTodos = [
         { CD_TALLER: "%", DSC_TALLER: "TODOS" },
         ...res.data, // Mantén los elementos existentes
@@ -283,14 +290,16 @@ export const FiltrosSiniestros = () => {
       ...rest
     } = queryDbroker;
     //console.log("QUERY: ", rest);
-    axios.post(`${routesVam}/Siniestros`, rest).then((res) => {
-      //console.log("SINIESTROS RESPONSE: ", res);
-      setData({
-        data: res.data || [],
-        loading: false,
-        pageSize: 10,
+    axios
+      .post(`${process.env.REACT_APP_API_URL}/Siniestros`, rest)
+      .then((res) => {
+        //console.log("SINIESTROS RESPONSE: ", res);
+        setData({
+          data: res.data || [],
+          loading: false,
+          pageSize: 10,
+        });
       });
-    });
     actions.setSubmitting(false);
   };
   const onSubmit = (newValues, actions) => {
@@ -504,7 +513,9 @@ const loadOptionsNew = debounce(async (inputValue, callback) => {
 const getContratantesByInputValue = async (inputValue) => {
   if (inputValue.length >= 3) {
     try {
-      const response = await axios.get(`${routesVam}/Clientes/${inputValue}`);
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/Clientes/${inputValue}`
+      );
 
       const formatedData = response.data.slice(0, 50).map((result) => ({
         value: result.ID,
@@ -527,7 +538,7 @@ const getDiagnosticoByInputValue = async (inputValue) => {
   if (inputValue.length >= 3) {
     try {
       const response = await axios.get(
-        `${routesVam}/Diagnosticos/${inputValue}`
+        `${process.env.REACT_APP_API_URL}/Diagnosticos/${inputValue}`
       );
 
       const formatedData = response.data.slice(0, 50).map((result) => ({

@@ -30,7 +30,7 @@ const Usuarios = ({ usuario }) => {
       usuario: newValues.cdUsuario,
     };
 
-    axios.post(`${routesVam}/Usuarios/modificar`, usuarioUpdate).then((res) => {
+    axios.post(`${process.env.REACT_APP_API_URL}/Usuarios/modificar`, usuarioUpdate).then((res) => {
       // console.log("RES SUCCESS: ", res);
     });
     actions.setSubmitting(false);

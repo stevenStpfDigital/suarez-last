@@ -18,7 +18,7 @@ const ObsEstadoHistorial = ({ data, open, setOpen }) => {
     console.log("MOUNTING?:");
     const fetchData = async () => {
       try {
-        const response = await axios.post(`${routesVam}/seguimientos`, data);
+        const response = await axios.post(`${process.env.REACT_APP_API_URL}/seguimientos`, data);
         // console.log("RES OBSERVACION:", response.data);
         response.data.FC_CREACION = moment(response.data.FC_CREACION)
           .locale("es")
