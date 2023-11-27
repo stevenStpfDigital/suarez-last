@@ -14,6 +14,7 @@ const router = createBrowserRouter([
     element: <FiltrosSiniestros />,
     errorElement: <PageNotFound />,
   },
+ 
   {
     path: "*",
     element: <PageNotFound />,
