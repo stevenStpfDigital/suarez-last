@@ -12,10 +12,10 @@ const routesVam = "http://10.147.20.248:3030/api";
 const ObsEstadoHistorial = ({ data, open, setOpen }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [list, setList] = useState([]);
-  console.log("OBSDATA: ", data);
+ 
 
   useEffect(() => {
-    console.log("MOUNTING?:");
+    
     const fetchData = async () => {
       try {
         const response = await axios.post(`${process.env.REACT_APP_API_URL}/seguimientos`, data);
@@ -35,7 +35,7 @@ const ObsEstadoHistorial = ({ data, open, setOpen }) => {
     fetchData();
 
     return () => {
-      console.log("UNMOUNTING COMPONENT ------------------>>>>>>>");
+ 
     };
   }, [data, isLoading]);
   const defineWidth = (length) => {

@@ -59,9 +59,7 @@ export const FiltrosSiniestros = () => {
     sorted: [],
   });
   const [newQuery, setNewQuery] = useState(defaultNuevoSiniestroFilter());
-  const [newSiniestroValues, setNewSiniestroValues] = useState(
-    defaultNuevoSiniestro
-  );
+
   const [dbrokerUser, setDBrokerUSer] = useState(null);
   const [aseguradora, setAseguradora] = useState([]);
   const [aseguradoraSiniestro, setAseguradoraSiniestro] = useState([]);
@@ -103,7 +101,8 @@ export const FiltrosSiniestros = () => {
     const emailUserJson = JSON.parse(emailUser);
 
     const correo = {
-      correo: emailUserJson.email,
+      //correo: emailUserJson.email,
+       correo: "czhunio@segurossuarez.com",
     };
 
     axios
@@ -117,11 +116,13 @@ export const FiltrosSiniestros = () => {
       .catch((error) => {
         console.log("ERROR: ", error);
       });
+
+    // console.log("USER DATA: ", emailUserJson);
   }, [field_valid]);
 
   useEffect(() => {
     setNewQuery(defaultNuevoSiniestroFilter());
-    setNewSiniestroValues(defaultNuevoSiniestro());
+   
 
     getAseguradora();
     getAgentes();
@@ -289,7 +290,7 @@ export const FiltrosSiniestros = () => {
       checkFcGestion,
       ...rest
     } = queryDbroker;
-    //console.log("QUERY: ", rest);
+    // console.log("QUERY: ", rest);
     axios
       .post(`${process.env.REACT_APP_API_URL}/Siniestros`, rest)
       .then((res) => {
@@ -395,22 +396,11 @@ export const FiltrosSiniestros = () => {
 
                     {newSiniestro && (
                       <>
-                        {/* <ModalNewSiniestro
-                          open={newSiniestro}
-                          setOpen={setNewSiniestro}
-                          query={newSiniestroValues}
-                          form={form}
-                          selectsData={{
-                            aseguradora: aseguradoraSiniestro,
-                            sucursal: sucursalSiniestro,
-                            ramos: ramos,
-                            taller: tallerSiniestro,
-                          }}
-                        /> */}
+                
                         <ModalNuevoSiniestro
                           open={newSiniestro}
                           setOpen={setNewSiniestro}
-                          query={newSiniestroValues}
+                       
                           form={form}
                           selectsData={{
                             aseguradora: aseguradoraSiniestro,
@@ -488,10 +478,14 @@ export const FiltrosSiniestros = () => {
           </div>
         </section>
       ) : (
-        <section className="container mt-5 d-flex justify-content-center">
-          <h3>
-            El usuario no se encuentra en nuestro sistema. Contáctese con el
-            administrador del sistema.
+        <section className="container mt-5 d-flex flex-column align-items-center">
+          <h3 className="text-center">
+            El usuario no se encuentra registrado en nuestro sistema. Para más
+            información, contáctese con el administrador:
+            <a href="mailto:servicedesk@stpfdigital.com" className="ml-2">
+              servicedesk@stpfdigital.com
+            </a>
+            .
           </h3>
         </section>
       )}

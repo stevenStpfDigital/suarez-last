@@ -1,4 +1,5 @@
 import moment from "moment/moment";
+import * as yup from "yup";
 
 function firstDayMonth() {
   let date = moment({ year: 2000, month: 0, day: 1 });
@@ -135,8 +136,8 @@ export const AUX_CHECK_CONTROLLER = [
   "checkFcGestion",
 ];
 
+const REQUERIDO = "Campo requerido";
 
-// VALIDATION 
 // export const v_filtro = yup.object().shape({
 //   fcCreacionDesde: yup.date().required(REQUERIDO).typeError("Fecha inválida"),
 //   fcCreacionHasta: yup
@@ -168,3 +169,8 @@ export const AUX_CHECK_CONTROLLER = [
 //     )
 //     .typeError("Fecha inválida"),
 // });
+export const v_nuevoSiniestro = yup.object().shape({
+  cdCliente: yup.number().required(REQUERIDO),
+  cdAseguradora: yup.number().required(REQUERIDO),
+  cdSucursal: yup.number().required(REQUERIDO),
+});

@@ -10,6 +10,7 @@ import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 import { UqaiField } from "../../../components/UqaiField";
 import DBrokerCalendario from "../../../components/DBrokerCalendario";
+import { defaultNuevoSiniestro, v_nuevoSiniestro } from "../utils";
 
 //DEVELOPMENT
 const routesVam = "http://10.147.20.248:3030/api";
@@ -19,12 +20,15 @@ const routesVam = "http://10.147.20.248:3030/api";
 const ModalNuevoSiniestro = ({
   open,
   setOpen,
-  query,
+
   form,
   selectsData,
   loadOptionsClientes,
   loadOptionsDiagnostico,
 }) => {
+  const [newSiniestroValues, setNewSiniestroValues] = useState(
+    defaultNuevoSiniestro
+  );
   const [resultSearch, setResulSearch] = useState([]);
   const [valuePolizaSelect, setValuePolizaSelect] = useState(null);
   const [valueSucursalSelect, setValueSucursalSelect] = useState(null);
@@ -46,7 +50,6 @@ const ModalNuevoSiniestro = ({
   const sucursalData = useSelector((state) => state.sucursal.value);
   const [v0, set0] = useState(null);
   const [isVam, setIsVam] = useState(false);
-
   const [resultNewSiniestro, setResultNewSiniestro] = useState(false);
   const aseguradoraProperties = ["ID", "CD_ASEGURADORA"];
   const ramoProperties = ["CD_RAMO", "CD_RAMO"];
@@ -106,7 +109,7 @@ const ModalNuevoSiniestro = ({
       setIsVam(false);
     }
     if (lowerRamo.includes("desgravamen")) {
-      console.log("RAMO? DSGRAVAMEN", lowerRamo);
+    //   console.log("RAMO? DSGRAVAMEN", lowerRamo);
     }
   }, [nombreRamoAux]);
   useEffect(() => {
@@ -189,7 +192,10 @@ const ModalNuevoSiniestro = ({
 
   const searchDataPoliza = async (values) => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/polizas`, values);
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/polizas`,
+        values
+      );
       // console.log("VALUES: ", values);
       // console.log("RESPONSE POliza: ", response.data);
       setResulSearch(response.data);
@@ -202,7 +208,10 @@ const ModalNuevoSiniestro = ({
   };
   const searchDataAsegurados = async (values) => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/Asegurados`, values);
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/Asegurados`,
+        values
+      );
 
       const arrayDeObjetos = Object.keys(response.data).map((clave) => {
         return { value: response.data[clave], label: response.data[clave] };
@@ -213,21 +222,31 @@ const ModalNuevoSiniestro = ({
       console.log("ERROR: ", error);
     }
   };
-  const onSubmit = async (newValues, actions) => {
+  const onSubmit = async (newValues, actions, resetForm) => {
     const backFormat = "DD/MM/YYYY";
     const formatFieldValue = (value) => moment(value).format(backFormat);
     let values = { ...newValues };
     values.fcRecepcion = formatFieldValue(values.fcRecepcion);
     values.fcEvento = formatFieldValue(values.fcEvento);
 
-    //  console.log("VALUES?_ ", values);
+    // console.log("VALUES?_ ", values);
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/nuevoSiniestro`, values);
-      // console.log("SUCCES? : ", response);
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/nuevoSiniestro`,
+        values
+      );
+    //  console.log("SUCCES? : ", response);
       setResultNewSiniestro(true);
+      //setNewSiniestroValues(defaultNuevoSiniestro);
+ 
+
+      actions.setSubmitting(false);
     } catch (error) {
       console.log("ERROR: ", error);
     }
+  };
+  const handleResetForm = (resetForm) => {
+    resetForm();
   };
 
   return (
@@ -239,11 +258,16 @@ const ModalNuevoSiniestro = ({
       <ModalBody>
         <UqaiFormik
           onSubmit={onSubmit}
-          initialValues={query}
-          validateOnChange={false}
+          initialValues={newSiniestroValues}
+          validateOnChange={true}
+          enableReinitialize={true}
+          handleResetForm={handleResetForm}
           ref={form}
+          validationSchema={v_nuevoSiniestro}
         >
-          {({ submitForm, values, isSubmitting, setFieldValue }) => {
+          {({ resetForm, submitForm, values, isSubmitting, setFieldValue }) => {
+            // console.log("ISSUBMIT: ", isSubmitting);
+            // console.log("v_nuevoSiniestro: ", v_nuevoSiniestro);
             return (
               <div className="row my-3">
                 <div className="col-2">
@@ -262,7 +286,6 @@ const ModalNuevoSiniestro = ({
                     }}
                   />
                 </div>
-
                 <div className="col-2">
                   <label className="form-label fw-bold text-secondary fs-7">
                     * Aseguradora:
@@ -372,17 +395,7 @@ const ModalNuevoSiniestro = ({
                   <label className="form-label fw-bold text-secondary fs-7">
                     Asegurado-propietario:
                   </label>
-                  {/* <UqaiField
-                      type="text"
-                      name={"cdAsegurado"}
-                      className={"form-control"}
-                      placeholder={"Asegurado"}
-                    /> */}
-                  {/* <AsyncCreatableSelect
-                      cacheOptions
-                      defaultOptions
-                      loadOptions={loadOptionsAsegurado}
-                    /> */}
+
                   <CreatableSelect
                     placeholder="Asegurados"
                     options={aseguradoOptions}
@@ -414,7 +427,6 @@ const ModalNuevoSiniestro = ({
                     />
                   </div>
                 )}
-
                 {valuePolizaSelect && (
                   <>
                     <div className="col-2">
@@ -490,7 +502,6 @@ const ModalNuevoSiniestro = ({
                     placeholder="DD/MM/AAAA"
                   />
                 </div>
-
                 <div className="col-2">
                   <label className="form-label fw-bold text-secondary fs-7">
                     Diagnostico-causa:
@@ -502,7 +513,7 @@ const ModalNuevoSiniestro = ({
                     defaultOptions
                     loadOptions={loadOptionsDiagnostico}
                     onChange={(valueSelect) => {
-                      console.log("VALUE:", valueSelect);
+                 
                       setFieldValue("tpDiagnostico", valueSelect.value);
                       setFieldValue("cdDiagnostico", valueSelect.value);
                       setFieldValue("nmDiagnostico", valueSelect.label);
@@ -525,23 +536,6 @@ const ModalNuevoSiniestro = ({
                     }}
                   />
                 </div>
-                {/* <div className="col-2">
-                    <label className="form-label fw-bold text-secondary fs-7">
-                      Taller:
-                    </label>
-                    <UqaiField
-                      type="text"
-                      component="select"
-                      className="form-select"
-                      name="cdTaller"
-                    >
-                      {[].map((opt) => (
-                        <option key={opt.label} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </UqaiField>
-                  </div> */}
                 <div className="col-2">
                   <label className="form-label fw-bold text-secondary fs-7">
                     Taller:
@@ -576,6 +570,7 @@ const ModalNuevoSiniestro = ({
                       type="button"
                       className="btn btn-alternative"
                       onClick={submitForm}
+                      disabled={isSubmitting}
                     >
                       Guardar
                     </button>
