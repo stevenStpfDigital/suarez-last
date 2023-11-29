@@ -5,6 +5,7 @@ import { Card, CardBody, CardHeader, Modal, ModalBody } from "reactstrap";
 import {
   PRIORIDAD_INTERVALES,
   PRIORIDAD_SELECTS,
+  debounce,
   defaultNuevoSiniestro,
   defaultNuevoSiniestroFilter,
 } from "./utils";
@@ -43,10 +44,7 @@ import LeyendaColor from "./parts/LeyendaColor";
 import { save_data_storage_usuariosDBroker } from "../../features/user/userDBrokerSlice";
 import ModalNuevoSiniestro from "./components/ModalNuevoSiniestro";
 
-//DEVELOPMENT
-const routesVam = "http://10.147.20.248:3030/api";
-//LIVE
-//  const routesVam = "http://127.0.0.1:3030/api";
+
 
 export const FiltrosSiniestros = () => {
   const { field_valid } = useParams();
@@ -101,15 +99,15 @@ export const FiltrosSiniestros = () => {
     const emailUserJson = JSON.parse(emailUser);
 
     const correo = {
-      //correo: emailUserJson.email,
-       correo: "czhunio@segurossuarez.com",
+      correo: emailUserJson.email,
+      //correo: "czhunio@segurossuarez.com",
     };
 
     axios
       .post(`${process.env.REACT_APP_API_URL}/Usuarios/login`, correo)
       .then((res) => {
         if (res.data[0]) {
-          save_data_storage_usuariosDBroker(res.data[0]);
+          dispatch(save_data_storage_usuariosDBroker(res.data[0]));
           setDBrokerUSer(res.data[0]);
         }
       })
@@ -122,7 +120,6 @@ export const FiltrosSiniestros = () => {
 
   useEffect(() => {
     setNewQuery(defaultNuevoSiniestroFilter());
-   
 
     getAseguradora();
     getAgentes();
@@ -197,6 +194,7 @@ export const FiltrosSiniestros = () => {
       const dataWithTodos = [
         { USUARIO: "%", NOMBRE: "TODOS" },
         ...res.data, // Mantén los elementos existentes
+        { USUARIO: "", NOMBRE: "Sin Usuario" },
       ];
       setUsuariosD(dataWithTodos);
       dispatch(save_data_storage_usuarios(res.data));
@@ -290,11 +288,11 @@ export const FiltrosSiniestros = () => {
       checkFcGestion,
       ...rest
     } = queryDbroker;
-    // console.log("QUERY: ", rest);
+    console.log("QUERY: ", rest);
     axios
       .post(`${process.env.REACT_APP_API_URL}/Siniestros`, rest)
       .then((res) => {
-        //console.log("SINIESTROS RESPONSE: ", res);
+        console.log("SINIESTROS RESPONSE: ", res);
         setData({
           data: res.data || [],
           loading: false,
@@ -396,11 +394,9 @@ export const FiltrosSiniestros = () => {
 
                     {newSiniestro && (
                       <>
-                
                         <ModalNuevoSiniestro
                           open={newSiniestro}
                           setOpen={setNewSiniestro}
-                       
                           form={form}
                           selectsData={{
                             aseguradora: aseguradoraSiniestro,
@@ -493,14 +489,6 @@ export const FiltrosSiniestros = () => {
   );
 };
 
-function debounce(func, delay) {
-  let timer;
-  return function () {
-    clearTimeout(timer);
-    timer = setTimeout(() => func.apply(this, arguments), delay);
-  };
-}
-
 const loadOptionsNew = debounce(async (inputValue, callback) => {
   callback(await getContratantesByInputValue(inputValue));
 });
@@ -533,6 +521,30 @@ const getDiagnosticoByInputValue = async (inputValue) => {
     try {
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/Diagnosticos/${inputValue}`
+      );
+
+      const formatedData = response.data.slice(0, 50).map((result) => ({
+        value: result.CD_CAUSA_SIN,
+        label: result.NM_CAUSA,
+        ...result,
+      }));
+
+      //console.log("FORMATED DATA: ", formatedData);
+
+      return formatedData;
+      // Mostrar los resultados en el frontend
+    } catch (error) {
+      console.error("Error al obtener datos:", error);
+      return [];
+      // Manejar el error y mostrar un mensaje al usuario si es necesario
+    }
+  }
+};
+const getPlacasByInputValue = async (inputValue) => {
+  if (inputValue.length >= 2) {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/Placas/${inputValue}`
       );
 
       const formatedData = response.data.slice(0, 50).map((result) => ({

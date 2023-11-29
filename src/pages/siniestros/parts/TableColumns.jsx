@@ -195,16 +195,10 @@ export const TableColumnsSiniestros = [
               dsc_estado: row.original.EST_SINIESTRO,
               cd_reclamo: row.original.CD_RECLAMO,
               cd_sucursal: row.original.CD_COMPANIA,
-              obs_est_siniestro:row.original.OBS_EST_SINIESTRO,
-              fc_ult_gestion:row.original.FC_SEGUIMIENTO
+              obs_est_siniestro: row.original.OBS_EST_SINIESTRO,
+              fc_ult_gestion: row.original.FC_SEGUIMIENTO,
             }}
           />
-          {/* <ListObservaciones
-            data={{
-              cdReclamo: row.original.CD_RECLAMO,
-              cdSucursal: row.original.CD_COMPANIA,
-            }}
-          /> */}
         </>
       );
     },
@@ -228,16 +222,6 @@ export const TableColumnsSiniestros = [
       );
     },
   },
-
-  // {
-  //   Header: "",
-  //   minResizeWidth: 10,
-  //   filterable: false,
-  //   sortable: false,
-  //   // accessor: "obsSiniestro",
-  //   // id: "OBS_SINIESTRO",
-  //   Cell: (row) => <ListObservaciones txt={row.original?.obsSiniestro} />,
-  // },
   {
     Header: "Comentario",
     minResizeWidth: 10,
@@ -245,23 +229,24 @@ export const TableColumnsSiniestros = [
     filterable: false,
     sortable: false,
     accessor: "OBS_EST_SINIESTRO",
-    // Cell: (row) => <TextComent txt={row.original?.commentario} />,
-    // id: "OBS_SINIESTRO",
   },
 
   {
     Header: "Fc. Ocurrencia",
     minResizeWidth: 10,
+    width: 140,
     filterable: false,
-    // accessor: (d) => {
-    //   return !d.FC_SEGUIMIENTO
-    //     ? ""
-    //     : moment(d.FC_SEGUIMIENTO).locale("es").format("DD/MM/YYYY");
-    // },
     accessor: (d) => {
       return !d.FC_EVENTO
         ? ""
         : moment(d.FC_EVENTO).locale("es").format("DD/MM/YYYY");
+    },
+    Cell: (row) => {
+      return (
+        <>
+          <FcOcurrencia fcOcurrencia={row.original.FC_EVENTO} />
+        </>
+      );
     },
 
     id: "FC_OCURRENCIA",

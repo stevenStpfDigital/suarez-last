@@ -4,10 +4,7 @@ import Select from "react-select";
 import { useSelector } from "react-redux";
 import axios from "axios";
 
-//DEVELOPMENT
-const routesVam = "http://10.147.20.248:3030/api";
-//LIVE
-//  const routesVam = "http://127.0.0.1:3030/api";
+
 const Usuarios = ({ usuario }) => {
   const form = useRef();
   const usuariosData = useSelector((state) => state.usuario.value);
@@ -30,9 +27,14 @@ const Usuarios = ({ usuario }) => {
       usuario: newValues.cdUsuario,
     };
 
-    axios.post(`${process.env.REACT_APP_API_URL}/Usuarios/modificar`, usuarioUpdate).then((res) => {
-      // console.log("RES SUCCESS: ", res);
-    });
+    axios
+      .post(
+        `${process.env.REACT_APP_API_URL}/Usuarios/modificar`,
+        usuarioUpdate
+      )
+      .then((res) => {
+        // console.log("RES SUCCESS: ", res);
+      });
     actions.setSubmitting(false);
     setAux(false);
   };
@@ -60,6 +62,12 @@ const Usuarios = ({ usuario }) => {
                 setFieldValue("cdUsuario", valueSelect.USUARIO);
                 setAux(true);
                 set3(valueSelect);
+              }}
+              styles={{
+                control: (provided) => ({
+                  ...provided,
+                  width: 200,
+                }),
               }}
             />
             {aux && (

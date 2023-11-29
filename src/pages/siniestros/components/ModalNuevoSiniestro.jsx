@@ -10,12 +10,9 @@ import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 import { UqaiField } from "../../../components/UqaiField";
 import DBrokerCalendario from "../../../components/DBrokerCalendario";
-import { defaultNuevoSiniestro, v_nuevoSiniestro } from "../utils";
+import { debounce, defaultNuevoSiniestro, v_nuevoSiniestro } from "../utils";
+import useCdUser from "../../../hooks/useCdUser";
 
-//DEVELOPMENT
-const routesVam = "http://10.147.20.248:3030/api";
-//LIVE
-//  const routesVam = "http://127.0.0.1:3030/api";
 
 const ModalNuevoSiniestro = ({
   open,
@@ -32,7 +29,11 @@ const ModalNuevoSiniestro = ({
   const [resultSearch, setResulSearch] = useState([]);
   const [valuePolizaSelect, setValuePolizaSelect] = useState(null);
   const [valueSucursalSelect, setValueSucursalSelect] = useState(null);
-  const [placaSelect, setPlacaSelect] = useState(null);
+  const [valueClienteSelect, setValueClienteSelect] = useState(null);
+  const [valueAseguradoraSelect, setValueAseguradoraSelect] = useState(null);
+  const [valueRamoSelect, setValueRamoSelect] = useState(null);
+  const [valueAseguradoSelect, setValueAseguradoSelect] = useState(null);
+  const [placaSelect, setPlacaSelect] = useState([]);
   const [cdClienteAux, setCdClienteAux] = useState(null);
   const [cdRamoAux, setCdRamoAux] = useState(null);
   const [nombreRamoAux, setNombreRamoAux] = useState(null);
@@ -49,11 +50,20 @@ const ModalNuevoSiniestro = ({
   const ramosData = useSelector((state) => state.ramos.value);
   const sucursalData = useSelector((state) => state.sucursal.value);
   const [v0, set0] = useState(null);
+  const [inputPlaca, setInputPlaca] = useState(null);
   const [isVam, setIsVam] = useState(false);
   const [resultNewSiniestro, setResultNewSiniestro] = useState(false);
   const aseguradoraProperties = ["ID", "CD_ASEGURADORA"];
   const ramoProperties = ["CD_RAMO", "CD_RAMO"];
   const sucursalProperties = ["ID", "CD_COMPANIA"];
+
+  const user = useCdUser();
+
+  useEffect(() => {
+    setGroupedOptionsSucursal(sucursalData);
+    setGroupedOptionsRamo(ramosData);
+    setGroupedOptionsAseguradora(aseguradorasData);
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -64,25 +74,28 @@ const ModalNuevoSiniestro = ({
       cdCliente: cdClienteAux || "%",
       cdSucursal: cdSucursalAux || "%",
       cdRamo: cdRamoAux || "%",
+      cdAseguradora: cdAseguradoraAux || "%",
       poliza: "%",
     };
     if (cdClienteAux) searchDataPoliza(newValues);
-  }, [cdClienteAux, cdSucursalAux, cdRamoAux]);
+  }, [cdClienteAux, cdSucursalAux, cdRamoAux, cdAseguradoraAux]);
 
   useEffect(() => {
-    if (valuePolizaSelect?.CD_RAMO_COTIZACION) {
-      const obj = {
-        cdRC: valuePolizaSelect.CD_RAMO_COTIZACION,
-        cdSucursal: "%",
-        poliza: "%", // valuePolizaSelect.POLIZA,
-        cdCliente: "%", //cdClienteAux
-      };
-      axios.post(`${process.env.REACT_APP_API_URL}/placas`, obj).then((res) => {
-        // console.log("RESPONSE PLACAS: ", res);
-        setPlacaSelect(res.data);
-      });
-    }
-  }, [valuePolizaSelect]);
+    const obj = {
+      cdRC: valuePolizaSelect?.CD_RAMO_COTIZACION || "%",
+      cdSucursal: cdSucursalAux || "%",
+      poliza: "%", // valuePolizaSelect.POLIZA,
+      cdCliente: cdClienteAux || "%", //cdClienteAux
+      placa: inputPlaca?.toUpperCase() || "%",
+    };
+
+    //console.log("OBJPLACA: ", obj);
+    axios.post(`${process.env.REACT_APP_API_URL}/placas`, obj).then((res) => {
+      // axios.post(`http://10.147.20.248:3030/api/placas`, obj).then((res) => {
+      //console.log("RESPONSEPLACA: ", res.data.slice(0, 50));
+      setPlacaSelect(res.data.slice(0, 50));
+    });
+  }, [valuePolizaSelect, cdSucursalAux, cdClienteAux, inputPlaca]);
 
   useEffect(() => {
     const newValues = {
@@ -109,7 +122,7 @@ const ModalNuevoSiniestro = ({
       setIsVam(false);
     }
     if (lowerRamo.includes("desgravamen")) {
-    //   console.log("RAMO? DSGRAVAMEN", lowerRamo);
+      //   console.log("RAMO? DSGRAVAMEN", lowerRamo);
     }
   }, [nombreRamoAux]);
   useEffect(() => {
@@ -125,6 +138,9 @@ const ModalNuevoSiniestro = ({
   const resetResult = () => {
     setResultNewSiniestro(false);
   };
+  const filterByValue = (value, array, property) => {
+    return array.filter((item) => item[property] === value);
+  };
 
   const filterByProperties = (item1, array2, propertys) =>
     array2.some((item2) => item1[propertys[0]] === item2[propertys[1]]);
@@ -137,6 +153,16 @@ const ModalNuevoSiniestro = ({
       (item) => !filterByProperties(item, data, filterProperties)
     ),
   });
+  const getCliente = async (value) => {
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_URL}/Clientes/${value}`
+    );
+    const formatedData = response.data.map((result) => ({
+      value: result.ID,
+      label: `${result.NOMBRES} ${result.APELLIDOS || null}`,
+    }));
+    return formatedData;
+  };
 
   const fetchData = async () => {
     try {
@@ -222,23 +248,47 @@ const ModalNuevoSiniestro = ({
       console.log("ERROR: ", error);
     }
   };
+  // const getPlacasByParams = async (inputValue) => {
+  //   try {
+  //     const obj = {
+  //       cdRC: valuePolizaSelect?.CD_RAMO_COTIZACION || "%",
+  //       cdSucursal: cdSucursalAux || "%",
+  //       poliza: "%", // valuePolizaSelect.POLIZA,
+  //       cdCliente: cdClienteAux || "%", //cdClienteAux
+  //       placa: inputValue.toUpperCase(),
+  //     };
+  //     //console.log("PLACAS: ", obj);
+  //     // await axios.post(`${process.env.REACT_APP_API_URL}/placas`, obj).then((res) => {
+  //     const response = await axios.post(
+  //       `http://10.147.20.248:3030/api/placas`,
+  //       obj
+  //     );
+
+  //     const responseSlice = response.data.slice(0, 50);
+  //     //console.log("RESPONSEPLACAS: ", responseSlice);
+  //     return responseSlice;
+  //   } catch (error) {
+  //     console.log("ERROR: ", error);
+  //   }
+  // };
+
   const onSubmit = async (newValues, actions, resetForm) => {
     const backFormat = "DD/MM/YYYY";
     const formatFieldValue = (value) => moment(value).format(backFormat);
     let values = { ...newValues };
     values.fcRecepcion = formatFieldValue(values.fcRecepcion);
     values.fcEvento = formatFieldValue(values.fcEvento);
+    values.usuario = user;
 
-    // console.log("VALUES?_ ", values);
+    //console.log("VALUES?_ ", values);
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/nuevoSiniestro`,
         values
       );
-    //  console.log("SUCCES? : ", response);
+      //  console.log("SUCCES? : ", response);
       setResultNewSiniestro(true);
       //setNewSiniestroValues(defaultNuevoSiniestro);
- 
 
       actions.setSubmitting(false);
     } catch (error) {
@@ -248,6 +298,9 @@ const ModalNuevoSiniestro = ({
   const handleResetForm = (resetForm) => {
     resetForm();
   };
+  // const loadOptionsPlacas = debounce(async (inputValue, callback) => {
+  //   callback(await getPlacasByParams(inputValue));
+  // });
 
   return (
     <Modal isOpen={open} toggle={() => setOpen(false)} size="xl" centered>
@@ -266,7 +319,6 @@ const ModalNuevoSiniestro = ({
           validationSchema={v_nuevoSiniestro}
         >
           {({ resetForm, submitForm, values, isSubmitting, setFieldValue }) => {
-            // console.log("ISSUBMIT: ", isSubmitting);
             // console.log("v_nuevoSiniestro: ", v_nuevoSiniestro);
             return (
               <div className="row my-3">
@@ -277,10 +329,12 @@ const ModalNuevoSiniestro = ({
 
                   <AsyncSelect
                     placeholder="Clientes"
+                    value={valueClienteSelect}
                     cacheOptions
                     defaultOptions
                     loadOptions={loadOptionsClientes}
                     onChange={(valueSelect) => {
+                      setValueClienteSelect(valueSelect);
                       setFieldValue("cdCliente", valueSelect.value);
                       setCdClienteAux(valueSelect.value);
                     }}
@@ -293,12 +347,14 @@ const ModalNuevoSiniestro = ({
 
                   <Select
                     placeholder="Aseguradora"
+                    value={valueAseguradoraSelect}
                     options={groupedOptionsAseguradora}
                     getOptionLabel={(option) => option.ALIAS}
                     getOptionValue={(option) => option.ID}
                     onChange={(valueSelect) => {
                       setFieldValue("cdAseguradora", valueSelect.ID);
                       setCdAseguradoraAux(valueSelect.ID);
+                      setValueAseguradoraSelect(valueSelect);
                     }}
                   />
                 </div>
@@ -309,6 +365,7 @@ const ModalNuevoSiniestro = ({
 
                   <Select
                     placeholder={"Ramo"}
+                    value={valueRamoSelect}
                     options={groupedOptionsRamo}
                     getOptionLabel={(option) => option.NM_RAMO}
                     getOptionValue={(option) => option.CD_RAMO}
@@ -317,6 +374,7 @@ const ModalNuevoSiniestro = ({
                       setFieldValue("nmRamo", valueSelect.NM_RAMO);
                       setCdRamoAux(valueSelect.CD_RAMO);
                       setNombreRamoAux(valueSelect.NM_RAMO);
+                      setValueRamoSelect(valueSelect);
                     }}
                   />
                 </div>
@@ -382,6 +440,7 @@ const ModalNuevoSiniestro = ({
                       setFieldValue("cdFactAseg", valueSelect.FACT_ASEG);
                       setFieldValue("cdAnexo", valueSelect.ANEXO);
                       setFieldValue("cdSucursal", valueSelect.CD_COMPANIA);
+                      setFieldValue("cdRC", valueSelect.CD_RAMO_COTIZACION);
 
                       const sucursalObj = sucursalData.filter(
                         (item) => item.ID === valueSelect.CD_COMPANIA
@@ -398,6 +457,7 @@ const ModalNuevoSiniestro = ({
 
                   <CreatableSelect
                     placeholder="Asegurados"
+                    value={valueAseguradoSelect}
                     options={aseguradoOptions}
                     // getOptionLabel={(option) => option.asegurado}
                     // getOptionValue={(option) => option.asegurado}
@@ -410,6 +470,7 @@ const ModalNuevoSiniestro = ({
                       } else {
                         setFieldValue("cdAsegurado", valueSelect.value);
                       }
+                      setValueAseguradoSelect(valueSelect);
                       // console.log("VALUE ASEGURADO: ", valueSelect);
                     }}
                   />
@@ -473,6 +534,7 @@ const ModalNuevoSiniestro = ({
                     onChange={(valueSelect) => {
                       setFieldValue("cdSucursal", valueSelect.ID);
                       setCdSucursalAux(valueSelect.ID);
+                      setValueSucursalSelect(valueSelect);
                       // setValuePrioridad(valueSelect);
                     }}
                   />
@@ -513,7 +575,6 @@ const ModalNuevoSiniestro = ({
                     defaultOptions
                     loadOptions={loadOptionsDiagnostico}
                     onChange={(valueSelect) => {
-                 
                       setFieldValue("tpDiagnostico", valueSelect.value);
                       setFieldValue("cdDiagnostico", valueSelect.value);
                       setFieldValue("nmDiagnostico", valueSelect.label);
@@ -528,11 +589,55 @@ const ModalNuevoSiniestro = ({
                   <Select
                     placeholder="Placa-item"
                     options={placaSelect}
+                    onInputChange={setInputPlaca}
                     getOptionLabel={(option) => option.PLACA}
                     getOptionValue={(option) => option.PLACA}
                     onChange={(valueSelect) => {
+                      console.log("VALUESELECTED: ", valueSelect);
+                      setValuePolizaSelect(valueSelect);
                       setFieldValue("placa", valueSelect.PLACA);
-                      // setValuePrioridad(valueSelect);
+                      setFieldValue("poliza", valueSelect.POLIZA);
+                      setFieldValue("cdFactAseg", valueSelect.FACT_ASEG);
+                      setFieldValue("cdAnexo", valueSelect.ANEXO);
+                      setFieldValue("cdSucursal", valueSelect.CD_COMPANIA);
+                      setFieldValue("cdCliente", valueSelect.CD_CLIENTE);
+                      setFieldValue("cdAsegurado", valueSelect.ASEGURADO);
+                      setFieldValue("cdRC", valueSelect.CD_RAMO_COTIZACION);
+                      setFieldValue(
+                        "cdAseguradora",
+                        valueSelect.CD_ASEGURADORA
+                      );
+
+                      const selectSucursal = filterByValue(
+                        valueSelect.CD_COMPANIA,
+                        sucursalData,
+                        "ID"
+                      );
+                      const selectAseguradora = filterByValue(
+                        valueSelect.CD_ASEGURADORA,
+                        aseguradorasData,
+                        "ID"
+                      );
+                      const selectRamo = filterByValue(
+                        valueSelect.CD_RAMO,
+                        ramosData,
+                        "CD_RAMO"
+                      );
+                      setFieldValue("cdRamo", selectRamo.CD_RAMO);
+                      setFieldValue("nmRamo", selectRamo.NM_RAMO);
+
+                      setValueSucursalSelect(selectSucursal);
+                      // setValueClienteSelect(getCliente(valueSelect.))
+                      setValueAseguradoraSelect(selectAseguradora);
+                      setValueRamoSelect(selectRamo);
+                      setValueAseguradoSelect({
+                        label: valueSelect.ASEGURADO,
+                        value: valueSelect.ASEGURADO,
+                      });
+                      setValueClienteSelect({
+                        value: valueSelect.CD_CLIENTE,
+                        label: valueSelect.CLIENTE,
+                      });
                     }}
                   />
                 </div>

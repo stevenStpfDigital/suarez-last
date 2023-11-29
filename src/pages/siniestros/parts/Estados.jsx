@@ -13,18 +13,18 @@ import axios from "axios";
 import { UqaiCalendario } from "../../../components/UqaiCalendario";
 import moment from "moment/moment";
 import DBrokerCalendario from "../../../components/DBrokerCalendario";
+import { formatFieldValue } from "../utils";
+import useCdUser from "../../../hooks/useCdUser";
 
-//DEVELOPMENT
-const routesVam = "http://10.147.20.248:3030/api";
-//LIVE
-//  const routesVam = "http://127.0.0.1:3030/api";
+
 
 export const Estados = ({ estado }) => {
   const form = useRef();
   const siniestrosData = useSelector((state) => state.estSiniestros.value);
+  //const user = useSelector((state) => state.usuarioDBroker.value);
   const [v3, set3] = useState(siniestrosData[0]);
   const [aux, setAux] = useState();
-
+  const user = useCdUser();
 
   const estadoObj = siniestrosData.filter(
     (item) => item.DSC_ESTADO === estado.dsc_estado
@@ -38,22 +38,29 @@ export const Estados = ({ estado }) => {
   const resetForm = (resetForm) => {
     resetForm();
   };
+  if (user) {
+    console.log("RESDATA: ", user);
+  }
 
   const handleOnSubmit = (newValues, actions) => {
     const nuevoSiniestro = {
       cd_reclamo: estado.cd_reclamo,
       cd_sucursal: estado.cd_sucursal,
-      fc_inspecion: newValues.fc_inspecion,
+      //REVISAR NO ESTA FUNCIONANDO LA FECHA  28-11-2023
+      //fc_inspecion: formatFieldValue(newValues.fc_ult_gestion),
       observacion: newValues.txt,
-      usuario: "broker",
+      usuario: user,
       cd_estado_siniestro: newValues.cd_estado_siniestro,
     };
+    //console.log("NUEVO SINIESTRO?: ", nuevoSiniestro);
 
-    axios.post(`${process.env.REACT_APP_API_URL}/nuevoSeguimiento`, nuevoSiniestro).then((res) => {
-      // console.log("Res: ", res);
-      actions.setSubmitting(false);
-      setAux(false);
-    });
+    axios
+      .post(`${process.env.REACT_APP_API_URL}/nuevoSeguimiento`, nuevoSiniestro)
+      .then((res) => {
+        //console.log("Res: ", res);
+        actions.setSubmitting(false);
+        setAux(false);
+      });
   };
 
   return (
@@ -96,25 +103,24 @@ export const Estados = ({ estado }) => {
                 component={UqaiCalendario}
               />
             </div> */}
-          
-              <div className="col-4">
-                <UqaiField
-                  type="text"
-                  name={"txt"}
-                  className={"form-control"}
-                  placeholder={estado.obs_est_siniestro}
-                />
-              </div>
-              <div className="col-4">
-                <UqaiField
-                  component={DBrokerCalendario}
-                  type="date"
-                  name={"fc_ult_gestion"}
-                  className={"form-control"}
-                  placeholder={"DD/MM/AAAA"}
-                />
-              </div>
-        
+
+            <div className="col-4">
+              <UqaiField
+                type="text"
+                name={"txt"}
+                className={"form-control"}
+                placeholder={estado.obs_est_siniestro}
+              />
+            </div>
+            <div className="col-4">
+              <UqaiField
+                component={DBrokerCalendario}
+                type="date"
+                name={"fc_ult_gestion"}
+                className={"form-control"}
+                placeholder={"DD/MM/AAAA"}
+              />
+            </div>
 
             {aux && (
               <div className="row">

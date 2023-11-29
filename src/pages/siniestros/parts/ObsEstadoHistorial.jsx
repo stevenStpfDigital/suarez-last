@@ -4,10 +4,7 @@ import { UqaiModalHeader } from "../../../components/UqaiModalHeader";
 import axios from "axios";
 import moment from "moment/moment";
 
-//DEVELOPMENT
-const routesVam = "http://10.147.20.248:3030/api";
-//LIVE
-//  const routesVam = "http://localhost:3030/api";
+
 
 const ObsEstadoHistorial = ({ data, open, setOpen }) => {
   const [isLoading, setIsLoading] = useState(true);

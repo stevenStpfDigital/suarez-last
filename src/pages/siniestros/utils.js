@@ -67,6 +67,7 @@ export const defaultNuevoSiniestro = () => {
   };
 };
 
+
 export const PRIORIDAD_INTERVALES = {
   gen: {
     masivos: {
@@ -174,3 +175,14 @@ export const v_nuevoSiniestro = yup.object().shape({
   cdAseguradora: yup.number().required(REQUERIDO),
   cdSucursal: yup.number().required(REQUERIDO),
 });
+
+export const debounce = (func, delay) => {
+  let timer;
+  return function () {
+    clearTimeout(timer);
+    timer = setTimeout(() => func.apply(this, arguments), delay);
+  };
+};
+
+export const backFormat = "DD/MM/YYYY";
+export const formatFieldValue = (value) => moment(value).format(backFormat);

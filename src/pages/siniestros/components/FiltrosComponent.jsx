@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { CardBody, Offcanvas } from "react-bootstrap";
 import UqaiFormik from "../../../components/UqaiFormik";
 import { Card, CardHeader } from "reactstrap";
@@ -8,6 +8,7 @@ import { PRIORIDAD_SELECTS } from "../utils";
 import AsyncSelect from "react-select/async";
 import Select from "react-select";
 import { UqaiField } from "../../../components/UqaiField";
+import useCdUser from "../../../hooks/useCdUser";
 
 const FiltrosSideBarComponent = ({
   query,
@@ -29,10 +30,29 @@ const FiltrosSideBarComponent = ({
   const [v7, set7] = useState(selectsData.ramos[0]);
   const [v8, set8] = useState(selectsData.taller[0]);
   const [v9, set9] = useState(null);
-  const [checkboxActivo, setCheckboxActivo] = useState(false);
+  const [v10, set10] = useState(null);
+
   const handleClose = () => setShow(false);
   const toggleShow = () => setShow((s) => !s);
   const form = useRef();
+  const user = useCdUser();
+  useEffect(() => {
+    const currentUser = getCurrentUserDBroker();
+    if (currentUser) {
+      set5(currentUser);
+      query.cdUsuario = currentUser.USUARIO;
+    }
+
+    console.log("QUERY: ", query);
+  }, []);
+  const getCurrentUserDBroker = () => {
+    const currentUser = selectsData.usuariosD.find(
+      (item) => item.USUARIO === user
+    );
+
+    return currentUser || selectsData.usuariosD[0];
+  };
+
   return (
     <>
       <button
@@ -362,13 +382,13 @@ const FiltrosSideBarComponent = ({
                         </label>
                         <AsyncSelect
                           placeholder="TODOS"
-                          value={v0}
+                          value={v10}
                           cacheOptions
                           defaultOptions
                           loadOptions={loadOptionsNewDiagnostico}
                           onChange={(valueSelect) => {
                             setFieldValue("cdDiagnostico", valueSelect.label);
-                            set0(valueSelect);
+                            set10(valueSelect);
                           }}
                         />
                       </div>

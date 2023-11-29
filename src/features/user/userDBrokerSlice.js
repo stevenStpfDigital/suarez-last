@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 export const userDBrokerSlice = createSlice({
-  name: "usuarioDbroker",
+  name: "usuarioDBroker",
   initialState: {
     value: {},
   },
