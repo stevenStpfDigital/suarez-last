@@ -182,7 +182,7 @@ export const TableColumnsSiniestros = [
 
   {
     Header: "Estado",
-    width: 450,
+    width: 430,
     filterable: false,
     sortable: false,
     accessor: "EST_SINIESTRO",
@@ -234,7 +234,7 @@ export const TableColumnsSiniestros = [
   {
     Header: "Fc. Ocurrencia",
     minResizeWidth: 10,
-    width: 140,
+    width: 180,
     filterable: false,
     accessor: (d) => {
       return !d.FC_EVENTO
@@ -244,7 +244,13 @@ export const TableColumnsSiniestros = [
     Cell: (row) => {
       return (
         <>
-          <FcOcurrencia fcOcurrencia={row.original.FC_EVENTO} />
+          <FcOcurrencia
+            fcOcurrencia={{
+              fcOcurrencia: row.original.FC_EVENTO,
+              cdReclamo: row.original.CD_RECLAMO,
+              cdSucursal: row.original.CD_COMPANIA,
+            }}
+          />
         </>
       );
     },

@@ -44,8 +44,6 @@ import LeyendaColor from "./parts/LeyendaColor";
 import { save_data_storage_usuariosDBroker } from "../../features/user/userDBrokerSlice";
 import ModalNuevoSiniestro from "./components/ModalNuevoSiniestro";
 
-
-
 export const FiltrosSiniestros = () => {
   const { field_valid } = useParams();
   const [data, setData] = useState({
@@ -65,6 +63,7 @@ export const FiltrosSiniestros = () => {
   const [agentes, setAgentes] = useState([]);
   const [estSiniestro, setEstSiniestro] = useState([]);
   const [ramos, setRamos] = useState([]);
+  const [anios, setAnios] = useState([]);
   const [sucursal, setSucursal] = useState([]);
   const [sucursalSiniestro, setSucursalSiniestro] = useState([]);
   const [usuariosD, setUsuariosD] = useState([]);
@@ -130,6 +129,7 @@ export const FiltrosSiniestros = () => {
     getSubArea();
 
     getTallers();
+    setAnios(generateYearOptions());
   }, []);
 
   const getAseguradora = () => {
@@ -295,9 +295,13 @@ export const FiltrosSiniestros = () => {
         console.log("SINIESTROS RESPONSE: ", res);
         setData({
           data: res.data || [],
+          //data: res.data.slice(0, 1) || [],
           loading: false,
           pageSize: 10,
         });
+      })
+      .catch((error) => {
+        console.log("ERROR;: ", error);
       });
     actions.setSubmitting(false);
   };
@@ -335,7 +339,20 @@ export const FiltrosSiniestros = () => {
       return "prioridad-alta";
     }
   };
+  const generateYearOptions = () => {
+    const currentYear = moment().year();
+    const startYear = 2000;
 
+    const years = [
+      { value: "%", label: "TODOS" }, // Agregamos el primer valor "TODOS"
+    ];
+
+    for (let year = currentYear; year >= startYear; year--) {
+      years.push({ value: year, label: year.toString() });
+    }
+
+    return years;
+  };
   return (
     <PagesDBroker title={"Siniestros registrados"}>
       {dbrokerUser ? (
@@ -358,6 +375,7 @@ export const FiltrosSiniestros = () => {
                     diagnostico: diagnostico,
                     taller: taller,
                     placa: placas,
+                    anios: anios,
                   }}
                   loadOptionsNew={loadOptionsNew}
                   loadOptionsNewDiagnostico={loadOptionsNewDiagnostico}

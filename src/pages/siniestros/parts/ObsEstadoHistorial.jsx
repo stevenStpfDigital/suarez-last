@@ -4,22 +4,18 @@ import { UqaiModalHeader } from "../../../components/UqaiModalHeader";
 import axios from "axios";
 import moment from "moment/moment";
 
-
-
 const ObsEstadoHistorial = ({ data, open, setOpen }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [list, setList] = useState([]);
- 
 
   useEffect(() => {
-    
     const fetchData = async () => {
       try {
-        const response = await axios.post(`${process.env.REACT_APP_API_URL}/seguimientos`, data);
-        // console.log("RES OBSERVACION:", response.data);
-        response.data.FC_CREACION = moment(response.data.FC_CREACION)
-          .locale("es")
-          .format("DD/MM/YYYY");
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_URL}/seguimientos`,
+          data
+        );
+
         if (isLoading) {
           setList(response.data);
           setIsLoading(false);
@@ -31,9 +27,7 @@ const ObsEstadoHistorial = ({ data, open, setOpen }) => {
 
     fetchData();
 
-    return () => {
- 
-    };
+    return () => {};
   }, [data, isLoading]);
   const defineWidth = (length) => {
     if (length < 50) return "100%";
@@ -63,7 +57,9 @@ const ObsEstadoHistorial = ({ data, open, setOpen }) => {
                 <tr key={x.CD_INSPECCION}>
                   <td className="w-25" style={{ minWidth: "100px" }}>
                     <div>
-                      {moment(x.FC_CREACION).locale("es").format("DD/MM/YYYY")}
+                      {moment(x.FC_CREACION)
+                        .locale("es")
+                        .format("DD/MM/YYYY HH:mm:ss")}
                     </div>
                   </td>
                   <td className="w-25" style={{ minWidth: "100px" }}>

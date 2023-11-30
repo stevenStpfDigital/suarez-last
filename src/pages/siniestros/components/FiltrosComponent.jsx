@@ -29,7 +29,7 @@ const FiltrosSideBarComponent = ({
   const [v6, set6] = useState(selectsData.subArea[0]);
   const [v7, set7] = useState(selectsData.ramos[0]);
   const [v8, set8] = useState(selectsData.taller[0]);
-  const [v9, set9] = useState(null);
+  const [v9, set9] = useState(selectsData.anios[0]);
   const [v10, set10] = useState(null);
 
   const handleClose = () => setShow(false);
@@ -42,8 +42,6 @@ const FiltrosSideBarComponent = ({
       set5(currentUser);
       query.cdUsuario = currentUser.USUARIO;
     }
-
-    console.log("QUERY: ", query);
   }, []);
   const getCurrentUserDBroker = () => {
     const currentUser = selectsData.usuariosD.find(
@@ -139,11 +137,20 @@ const FiltrosSideBarComponent = ({
                         <label className="form-label fw-bold text-secondary fs-7">
                           Año:
                         </label>
-                        <UqaiField
+                        {/* <UqaiField
                           type="number"
                           name={"año"}
                           className={"form-control"}
                           placeholder={"TODOS"}
+                        /> */}
+                        <Select
+                          value={v9}
+                          defaultValue={selectsData.anios[0]}
+                          options={selectsData.anios}
+                          onChange={(valueSelect) => {
+                            setFieldValue("año", valueSelect.value);
+                            set9(valueSelect);
+                          }}
                         />
                       </div>
                       <div className="col-12">
@@ -263,7 +270,6 @@ const FiltrosSideBarComponent = ({
                           <div className="col-11">
                             <UqaiField
                               component={DBrokerCalendario}
-                              type="date"
                               name="fcIngreso"
                               className="form-control"
                               placeholder="DD/MM/AAAA"
@@ -284,8 +290,7 @@ const FiltrosSideBarComponent = ({
                           </div>
                           <div className="col-11">
                             <UqaiField
-                              component={DBrokerCalendario}
-                              type="date"
+                              component={DBrokerCalendario}                         
                               name="fcEvento"
                               className="form-control"
                               placeholder="DD/MM/AAAA"
@@ -306,8 +311,7 @@ const FiltrosSideBarComponent = ({
                           </div>
                           <div className="col-11">
                             <UqaiField
-                              component={DBrokerCalendario}
-                              type="date"
+                              component={DBrokerCalendario}                              
                               name="fcRecepcion"
                               className="form-control"
                               placeholder="DD/MM/AAAA"
@@ -328,8 +332,7 @@ const FiltrosSideBarComponent = ({
                           </div>
                           <div className="col-11">
                             <UqaiField
-                              component={DBrokerCalendario}
-                              type="date"
+                              component={DBrokerCalendario}                              
                               name="fcGestion"
                               className="form-control"
                               placeholder="DD/MM/AAAA"
@@ -440,6 +443,7 @@ const FiltrosSideBarComponent = ({
                               set6(selectsData.subArea[0]);
                               set7(selectsData.ramos[0]);
                               set8(selectsData.taller[0]);
+                              set9(selectsData.anios[0]);
 
                               handleResetForm(resetForm);
                             }}

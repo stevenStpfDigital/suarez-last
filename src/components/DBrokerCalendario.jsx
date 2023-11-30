@@ -5,12 +5,14 @@ const DBrokerCalendario = ({
   field,
   form,
   showInternalMessage = true,
+  includeTime = false,
+  autoSaveCallback,
   ...props
 }) => {
   const { name, value } = field;
   const { errors, touched, setFieldValue, setFieldTouched } = form;
 
-  const dateFormat = "YYYY-MM-DD";
+  const dateFormat = includeTime ? "YYYY-MM-DDTHH:mm" : "YYYY-MM-DD";
   const backFormat = "DD/MM/YYYY";
   const formatFieldValue = (value, format) => moment(value).format(format);
   const handleChange = (e) => {
@@ -20,15 +22,17 @@ const DBrokerCalendario = ({
     // const valueBack = formatFieldValue(value, backFormat);
 
     setFieldValue(name, value);
-    // Marcar el campo como tocado
     setFieldTouched(name, true);
+    if (autoSaveCallback) {
+      autoSaveCallback(value);
+    }
   };
   const hasError = errors[name] && touched[name];
 
   return (
     <>
       <input
-        type="date"
+        type={includeTime ? "datetime-local" : "date"}
         {...field}
         {...props}
         onChange={handleChange}

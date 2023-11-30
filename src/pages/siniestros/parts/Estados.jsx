@@ -16,8 +16,6 @@ import DBrokerCalendario from "../../../components/DBrokerCalendario";
 import { formatFieldValue } from "../utils";
 import useCdUser from "../../../hooks/useCdUser";
 
-
-
 export const Estados = ({ estado }) => {
   const form = useRef();
   const siniestrosData = useSelector((state) => state.estSiniestros.value);
@@ -38,9 +36,6 @@ export const Estados = ({ estado }) => {
   const resetForm = (resetForm) => {
     resetForm();
   };
-  if (user) {
-    console.log("RESDATA: ", user);
-  }
 
   const handleOnSubmit = (newValues, actions) => {
     const nuevoSiniestro = {
@@ -104,7 +99,7 @@ export const Estados = ({ estado }) => {
               />
             </div> */}
 
-            <div className="col-4">
+            <div className="col-3">
               <UqaiField
                 type="text"
                 name={"txt"}
@@ -112,10 +107,10 @@ export const Estados = ({ estado }) => {
                 placeholder={estado.obs_est_siniestro}
               />
             </div>
-            <div className="col-4">
+            <div className="col-5">
               <UqaiField
                 component={DBrokerCalendario}
-                type="date"
+                includeTime
                 name={"fc_ult_gestion"}
                 className={"form-control"}
                 placeholder={"DD/MM/AAAA"}
