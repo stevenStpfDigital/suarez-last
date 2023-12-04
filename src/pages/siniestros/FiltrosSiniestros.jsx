@@ -1,25 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import PagesDBroker from "../../layout/PagesDBroker";
-import { Offcanvas } from "react-bootstrap";
-import { Card, CardBody, CardHeader, Modal, ModalBody } from "reactstrap";
+import { Card, CardBody, CardHeader } from "reactstrap";
 import {
   PRIORIDAD_INTERVALES,
-  PRIORIDAD_SELECTS,
   debounce,
-  defaultNuevoSiniestro,
   defaultNuevoSiniestroFilter,
+  formatFieldValue,
 } from "./utils";
-import UqaiFormik from "../../components/UqaiFormik";
-import AsyncSelect from "react-select/async";
-import Select from "react-select";
 import axios from "axios";
-import { UqaiField } from "../../components/UqaiField";
-import {
-  UqaiCalendario,
-  formatDateDBroker,
-} from "../../components/UqaiCalendario";
-import { UqaiModalHeader } from "../../components/UqaiModalHeader";
-// import { useTable } from "react-table";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
 import moment from "moment/moment";
@@ -29,15 +17,12 @@ import { save_data_storage } from "./redux/estSiniestrosSlice";
 import CheckDbroker from "./parts/CheckDbroker";
 import AccionButton from "./components/AccionButton";
 import { Estados } from "./parts/Estados";
-
-import CreatableSelect from "react-select/creatable";
 import { save_data_storage_aseguradoras } from "./redux/aseguradorasSlice";
 import { save_data_storage_ramos } from "./redux/ramosSlice";
 import { save_data_storage_sucursal } from "./redux/sucursalSlice";
 import { save_data_storage_usuarios } from "./redux/usuariosSlice";
 import { useParams } from "react-router-dom";
 import CryptoJS from "crypto-js";
-import DBrokerCalendario from "../../components/DBrokerCalendario";
 import ObsEstadoHistorial from "./parts/ObsEstadoHistorial";
 import FiltrosSideBarComponent from "./components/FiltrosComponent";
 import LeyendaColor from "./parts/LeyendaColor";
@@ -50,14 +35,10 @@ export const FiltrosSiniestros = () => {
   const { field_valid } = useParams();
   const [data, setData] = useState({
     data: [],
-    // pages: 0,
-    // page: 0,
     loading: false,
     pageSize: 10,
-    sorted: [],
   });
   const [newQuery, setNewQuery] = useState(defaultNuevoSiniestroFilter());
-
   const [dbrokerUser, setDBrokerUSer] = useState(null);
   const [aseguradora, setAseguradora] = useState([]);
   const [aseguradoraSiniestro, setAseguradoraSiniestro] = useState([]);
@@ -71,10 +52,7 @@ export const FiltrosSiniestros = () => {
   const [usuariosD, setUsuariosD] = useState([]);
   const [subArea, setSubArea] = useState([]);
   const [placas, setPlacas] = useState([]);
-
-  const [diagnostico, setDiagnostico] = useState([]);
   const [taller, setTaller] = useState([]);
-  const [first, setFirst] = useState(true);
   const [newSiniestro, setNewSiniestro] = useState(false);
 
   const form = useRef();
@@ -84,7 +62,6 @@ export const FiltrosSiniestros = () => {
     if (!field_valid) return;
     const reConstructValue = (str) => {
       str = str.replace(/\_/g, "/");
-
       return str;
     };
     const decryptEmail = (value) => {
@@ -111,21 +88,12 @@ export const FiltrosSiniestros = () => {
           dispatch(save_data_storage_usuariosDBroker(res.data[0]));
           setDBrokerUSer(res.data[0]);
         }
-      })
-      .catch((error) => {
-        console.log("ERROR: ", error);
       });
-
-    // console.log("USER DATA: ", emailUserJson);
   }, [field_valid]);
-  useEffect(() => {
-    console.log("USEEFFECT REFRESH DATA");
-    console.log(data);
-  }, [data]);
+  useEffect(() => {}, [data]);
 
   useEffect(() => {
     setNewQuery(defaultNuevoSiniestroFilter());
-
     getAseguradora();
     getAgentes();
     getEstSiniestro();
@@ -133,7 +101,6 @@ export const FiltrosSiniestros = () => {
     getSucursal();
     getUsuariosD();
     getSubArea();
-
     getTallers();
     setAnios(generateYearOptions());
   }, []);
@@ -142,10 +109,7 @@ export const FiltrosSiniestros = () => {
     axios
       .get(`${process.env.REACT_APP_API_URL}/aliasAseguradora`)
       .then((res) => {
-        const dataWithTodos = [
-          { ID: "%", ALIAS: "TODOS" },
-          ...res.data, // Mantén los elementos existentes
-        ];
+        const dataWithTodos = [{ ID: "%", ALIAS: "TODOS" }, ...res.data];
 
         setAseguradora(dataWithTodos);
         setAseguradoraSiniestro(res.data);
@@ -154,11 +118,7 @@ export const FiltrosSiniestros = () => {
   };
   const getAgentes = () => {
     axios.get(`${process.env.REACT_APP_API_URL}/Agentes`).then((res) => {
-      const dataWithTodos = [
-        { ID: "%", AGENTE: "TODOS" },
-        ...res.data, // Mantén los elementos existentes
-      ];
-
+      const dataWithTodos = [{ ID: "%", AGENTE: "TODOS" }, ...res.data];
       setAgentes(dataWithTodos);
     });
   };
@@ -168,7 +128,7 @@ export const FiltrosSiniestros = () => {
       .then((res) => {
         const dataWithTodos = [
           { CD_EST_SINIESTRO: "%", DSC_ESTADO: "TODOS" },
-          ...res.data, // Mantén los elementos existentes
+          ...res.data,
         ];
         dispatch(save_data_storage(res.data));
         setEstSiniestro(dataWithTodos);
@@ -176,20 +136,14 @@ export const FiltrosSiniestros = () => {
   };
   const getRamosDBroker = () => {
     axios.get(`${process.env.REACT_APP_API_URL}/Ramos`).then((res) => {
-      const dataWithTodos = [
-        { CD_RAMO: "%", NM_RAMO: "TODOS" },
-        ...res.data, // Mantén los elementos existentes
-      ];
+      const dataWithTodos = [{ CD_RAMO: "%", NM_RAMO: "TODOS" }, ...res.data];
       setRamos(dataWithTodos);
       dispatch(save_data_storage_ramos(res.data));
     });
   };
   const getSucursal = () => {
     axios.get(`${process.env.REACT_APP_API_URL}/Sucursales`).then((res) => {
-      const dataWithTodos = [
-        { ID: "%", SUCURSAL: "TODOS" },
-        ...res.data, // Mantén los elementos existentes
-      ];
+      const dataWithTodos = [{ ID: "%", SUCURSAL: "TODOS" }, ...res.data];
       setSucursal(dataWithTodos);
       setSucursalSiniestro(res.data);
       dispatch(save_data_storage_sucursal(res.data));
@@ -199,7 +153,7 @@ export const FiltrosSiniestros = () => {
     axios.get(`${process.env.REACT_APP_API_URL}/Usuarios`).then((res) => {
       const dataWithTodos = [
         { USUARIO: "%", NOMBRE: "TODOS" },
-        ...res.data, // Mantén los elementos existentes
+        ...res.data,
         { USUARIO: "", NOMBRE: "Sin Usuario" },
       ];
       setUsuariosD(dataWithTodos);
@@ -208,10 +162,7 @@ export const FiltrosSiniestros = () => {
   };
   const getSubArea = () => {
     axios.get(`${process.env.REACT_APP_API_URL}/Subareas`).then((res) => {
-      const dataWithTodos = [
-        { ID: "%", SUBAREA: "TODOS" },
-        ...res.data, // Mantén los elementos existentes
-      ];
+      const dataWithTodos = [{ ID: "%", SUBAREA: "TODOS" }, ...res.data];
       setSubArea(dataWithTodos);
     });
   };
@@ -239,7 +190,7 @@ export const FiltrosSiniestros = () => {
   };
 
   const handleResetForm = (resetForm) => {
-    setData({ data: [], pages: 0, page: 0, loading: false, pageSize: 10 });
+    setData({ data: [], loading: false, pageSize: 10 });
     resetForm();
   };
 
@@ -254,38 +205,35 @@ export const FiltrosSiniestros = () => {
     return object;
   }
   const fetchDataDbroker = (q, actions) => {
-    const backFormat = "DD/MM/YYYY";
-    const formatFieldValue = (value) => moment(value).format(backFormat);
-    setData({
+    setData((prevData) => ({
+      ...prevData,
       loading: true,
-      ...data,
-    });
+    }));
+
+    const adjustDate = (check, date) => {
+      return check ? formatFieldValue(date) : "01/01/1900";
+    };
 
     let queryDbroker = { ...q };
+    queryDbroker.fcIngreso = adjustDate(
+      queryDbroker.checkFcIngreso,
+      queryDbroker.fcIngreso
+    );
+    queryDbroker.fcEvento = adjustDate(
+      queryDbroker.checkFcEvento,
+      queryDbroker.fcEvento
+    );
+    queryDbroker.fcRecepcion = adjustDate(
+      queryDbroker.checkFcRecepcion,
+      queryDbroker.fcRecepcion
+    );
+    queryDbroker.fcGestion = adjustDate(
+      queryDbroker.checkFcGestion,
+      queryDbroker.fcGestion
+    );
 
     queryDbroker.anio = queryDbroker.año;
     delete queryDbroker.año;
-
-    if (!queryDbroker.checkFcIngreso) {
-      queryDbroker.fcIngreso = "01/01/1900 ";
-    } else {
-      queryDbroker.fcIngreso = formatFieldValue(queryDbroker.fcIngreso);
-    }
-    if (!queryDbroker.checkFcEvento) {
-      queryDbroker.fcEvento = "01/01/1900 ";
-    } else {
-      queryDbroker.fcEvento = formatFieldValue(queryDbroker.fcEvento);
-    }
-    if (!queryDbroker.checkFcRecepcion) {
-      queryDbroker.fcRecepcion = "01/01/1900 ";
-    } else {
-      queryDbroker.fcRecepcion = formatFieldValue(queryDbroker.fcRecepcion);
-    }
-    if (!queryDbroker.checkFcGestion) {
-      queryDbroker.fcGestion = "01/01/1900 ";
-    } else {
-      queryDbroker.fcGestion = formatFieldValue(queryDbroker.fcGestion);
-    }
 
     const {
       checkFcIngreso,
@@ -378,7 +326,6 @@ export const FiltrosSiniestros = () => {
                     sucursal: sucursal,
                     usuariosD: usuariosD,
                     subArea: subArea,
-                    diagnostico: diagnostico,
                     taller: taller,
                     placa: placas,
                     anios: anios,
