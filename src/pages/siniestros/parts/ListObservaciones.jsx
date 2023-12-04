@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
+import AccionButton from "./AccionButton";
+import ObsEstadoHistorial from "./ObsEstadoHistorial";
 
 const ListObservaciones = ({ data }) => {
   const [open, setOpen] = useState(false);

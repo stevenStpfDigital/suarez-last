@@ -633,6 +633,8 @@ export const FiltrosSiniestros = () => {
                                 },
                                 className: `${priority}`,
                               };
+                            } else {
+                              return {};
                             }
                           }}
                           className="-highlight fs-7 mi-div "
@@ -705,4 +707,3 @@ const getDiagnosticoByInputValue = async (inputValue) => {
     }
   }
 };
-
