@@ -67,7 +67,6 @@ export const defaultNuevoSiniestro = () => {
   };
 };
 
-
 export const PRIORIDAD_INTERVALES = {
   gen: {
     masivos: {
@@ -186,3 +185,8 @@ export const debounce = (func, delay) => {
 
 export const backFormat = "DD/MM/YYYY";
 export const formatFieldValue = (value) => moment(value).format(backFormat);
+
+export const isVam = (value) => {
+  const lowerRamo = value.toLowerCase();
+  return lowerRamo.includes("vida") || lowerRamo.includes("medica");
+};

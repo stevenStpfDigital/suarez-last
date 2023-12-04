@@ -6,16 +6,15 @@ import {
   debounce,
   defaultNuevoSiniestroFilter,
   formatFieldValue,
+  isVam,
 } from "./utils";
 import axios from "axios";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
 import moment from "moment/moment";
-import { TableColumnsSiniestros } from "./parts/TableColumns";
+
 import { useDispatch, useSelector } from "react-redux";
 import { save_data_storage } from "./redux/estSiniestrosSlice";
-import CheckDbroker from "./parts/CheckDbroker";
-import AccionButton from "./components/AccionButton";
 import { Estados } from "./parts/Estados";
 import { save_data_storage_aseguradoras } from "./redux/aseguradorasSlice";
 import { save_data_storage_ramos } from "./redux/ramosSlice";
@@ -23,13 +22,13 @@ import { save_data_storage_sucursal } from "./redux/sucursalSlice";
 import { save_data_storage_usuarios } from "./redux/usuariosSlice";
 import { useParams } from "react-router-dom";
 import CryptoJS from "crypto-js";
-import ObsEstadoHistorial from "./parts/ObsEstadoHistorial";
 import FiltrosSideBarComponent from "./components/FiltrosComponent";
 import LeyendaColor from "./parts/LeyendaColor";
 import { save_data_storage_usuariosDBroker } from "../../features/user/userDBrokerSlice";
 import ModalNuevoSiniestro from "./components/ModalNuevoSiniestro";
 import Usuarios from "./parts/Usuarios";
 import FcOcurrencia from "./parts/FcOcurrencia";
+import ListObservaciones from "./parts/ListObservaciones";
 
 export const FiltrosSiniestros = () => {
   const { field_valid } = useParams();
@@ -253,30 +252,31 @@ export const FiltrosSiniestros = () => {
           loading: false,
           pageSize: 10,
         });
-      })
-      .catch((error) => {
-        console.log("ERROR;: ", error);
       });
+
     actions.setSubmitting(false);
   };
   const onSubmit = (newValues, actions) => {
     const formattedValues = replaceNullsWithPercentage(newValues);
-
     fetchDataDbroker(formattedValues, actions);
   };
-  function calcularDiferenciaEnDias(date) {
+  const calcularDiferenciaEnDias = (date) => {
     const initialDate = moment(date, "YYYY-MM-DDTHH:mm:ss.SSSZ");
     const actualDate = moment();
     const days = actualDate.diff(initialDate, "days");
     return days;
-  }
+  };
 
   const priorityClassName = (data) => {
     const daysDifference = calcularDiferenciaEnDias(data.FC_CREACION);
-    const prioridades =
-      data.SUBAREA === "MASIVOS"
-        ? PRIORIDAD_INTERVALES.gen.masivos
-        : PRIORIDAD_INTERVALES.gen;
+    const valueVam = isVam(data.NM_RAMO);
+    const prioridades = valueVam
+      ? data.SUBAREA === "MASIVOS"
+        ? PRIORIDAD_INTERVALES.vam.masivos
+        : PRIORIDAD_INTERVALES.vam
+      : data.SUBAREA === "MASIVOS"
+      ? PRIORIDAD_INTERVALES.gen.masivos
+      : PRIORIDAD_INTERVALES.gen;
 
     if (daysDifference >= 0 && daysDifference <= prioridades.normal.diasFinal) {
       return;
@@ -296,10 +296,7 @@ export const FiltrosSiniestros = () => {
   const generateYearOptions = () => {
     const currentYear = moment().year();
     const startYear = 2000;
-
-    const years = [
-      { value: "%", label: "TODOS" }, // Agregamos el primer valor "TODOS"
-    ];
+    const years = [{ value: "%", label: "TODOS" }];
 
     for (let year = currentYear; year >= startYear; year--) {
       years.push({ value: year, label: year.toString() });
@@ -400,10 +397,10 @@ export const FiltrosSiniestros = () => {
                               accessor: "NUM_SINIESTRO",
                               id: "NUM_SINIESTRO",
                               style: {
-                                textAlign: "center", // Centra el contenido de la columna
+                                textAlign: "center",
                               },
                               headerStyle: {
-                                textAlign: "center", // Centra el encabezado de la columna
+                                textAlign: "center",
                               },
                             },
                             {
@@ -413,7 +410,6 @@ export const FiltrosSiniestros = () => {
                               accessor: "NM_RAMO",
                               id: "CD_RAMO",
                             },
-
                             {
                               Header: "Fecha Evento",
                               width: 120,
@@ -491,7 +487,6 @@ export const FiltrosSiniestros = () => {
                               id: "ASEGURADORA",
                               accessor: "ALIAS_ASEG",
                               filterable: false,
-
                               minResizeWidth: 10,
                               width: 150,
                             },
@@ -509,7 +504,6 @@ export const FiltrosSiniestros = () => {
                               accessor: "ITEM",
                               id: "PLACA",
                             },
-
                             {
                               Header: "Taller",
                               minResizeWidth: 10,
@@ -517,7 +511,6 @@ export const FiltrosSiniestros = () => {
                               accessor: "TALLER",
                               id: "TALLER",
                             },
-
                             {
                               Header: "Estado",
                               width: 430,
@@ -599,7 +592,6 @@ export const FiltrosSiniestros = () => {
                                   </>
                                 );
                               },
-
                               id: "FC_OCURRENCIA",
                             },
                             {
@@ -624,50 +616,27 @@ export const FiltrosSiniestros = () => {
                               },
                             },
                           ]}
-                          // manual
                           data={data.data}
-                          // pages={data.pages}
                           loading={data.loading}
                           defaultPageSize={10}
                           filterable={true}
                           showPaginationTop
                           showPaginationBottom={false}
                           getTdProps={(state, rowInfo, column) => {
-                            // console.log("ROwInfo:", rowInfo);
                             if (rowInfo && rowInfo.row) {
-                              // console.log("RowInfo: ", rowInfo.row);
                               const priority = priorityClassName(
                                 rowInfo.row._original
                               );
-
                               return {
-                                onClick: (e, handleOriginal) => {
-                                  if (column.Header !== "Observación") {
-                                    // history.push(
-                                    //   `/vam/reportar-siniestro/${rowInfo.original.cdCompania}/${rowInfo.original.cdReclamo}/${rowInfo.original.cdIncSiniestro}`
-                                    // );
-                                  }
-                                  if (handleOriginal) {
-                                    handleOriginal();
-                                  }
-                                },
                                 style: {
                                   cursor: "pointer",
                                 },
                                 className: `${priority}`,
                               };
-                            } else {
-                              return {};
                             }
                           }}
-                          // page={data.page}
-                          // pageSize={data.pageSize}
-                          // onPageChange={(page) => setData({ ...data, page })}
-                          // onPageSizeChange={(pageSize, page) => {
-                          //   setData({ ...data, page, pageSize });
-                          // }}
                           className="-highlight fs-7 mi-div "
-                        ></ReactTable>
+                        />
                       </div>
                     </div>
                   </CardBody>
@@ -701,18 +670,16 @@ const getContratantesByInputValue = async (inputValue) => {
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/Clientes/${inputValue}`
       );
-
-      const formatedData = response.data.slice(0, 50).map((result) => ({
-        value: result.ID,
-        label: `${result.NOMBRES} ${result.APELLIDOS || null}`,
-      }));
+      const formatedData = response.data
+        .map((result) => ({
+          value: result.ID,
+          label: `${result.NOMBRES} ${result.APELLIDOS || ""}`,
+        }))
+        .slice(0, 50);
 
       return formatedData;
-      // Mostrar los resultados en el frontend
     } catch (error) {
-      console.error("Error al obtener datos:", error);
       return [];
-      // Manejar el error y mostrar un mensaje al usuario si es necesario
     }
   }
 };
@@ -725,63 +692,17 @@ const getDiagnosticoByInputValue = async (inputValue) => {
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/Diagnosticos/${inputValue}`
       );
-
-      const formatedData = response.data.slice(0, 50).map((result) => ({
-        value: result.CD_CAUSA_SIN,
-        label: result.NM_CAUSA,
-        ...result,
-      }));
-
-      //console.log("FORMATED DATA: ", formatedData);
-
+      const formatedData = response.data
+        .map((result) => ({
+          value: result.CD_CAUSA_SIN,
+          label: result.NM_CAUSA,
+          ...result,
+        }))
+        .slice(0, 50);
       return formatedData;
-      // Mostrar los resultados en el frontend
     } catch (error) {
-      console.error("Error al obtener datos:", error);
       return [];
-      // Manejar el error y mostrar un mensaje al usuario si es necesario
-    }
-  }
-};
-const getPlacasByInputValue = async (inputValue) => {
-  if (inputValue.length >= 2) {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/Placas/${inputValue}`
-      );
-
-      const formatedData = response.data.slice(0, 50).map((result) => ({
-        value: result.CD_CAUSA_SIN,
-        label: result.NM_CAUSA,
-        ...result,
-      }));
-
-      //console.log("FORMATED DATA: ", formatedData);
-
-      return formatedData;
-      // Mostrar los resultados en el frontend
-    } catch (error) {
-      console.error("Error al obtener datos:", error);
-      return [];
-      // Manejar el error y mostrar un mensaje al usuario si es necesario
     }
   }
 };
 
-export const ListObservaciones = ({ data, ...props }) => {
-  const [open, setOpen] = useState(false);
-
-  return (
-    // <LoadingContextProvider>
-    <div className={props?.className ?? "text-center w-100"}>
-      <AccionButton
-        onClick={() => setOpen(true)}
-        title={"Ver historial de estados"}
-      >
-        <i className={`icon-uqai uqai-ver`} />
-      </AccionButton>
-      {open && <ObsEstadoHistorial data={data} open={open} setOpen={setOpen} />}
-    </div>
-    // </LoadingContextProvider>
-  );
-};

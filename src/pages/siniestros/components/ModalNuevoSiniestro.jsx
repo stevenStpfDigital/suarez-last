@@ -113,15 +113,9 @@ const ModalNuevoSiniestro = ({
   }, [cdSucursalAux, nombreRamoAux, valuePolizaSelect]);
   useEffect(() => {
     if (!nombreRamoAux) return;
-    const lowerRamo = nombreRamoAux.toLowerCase();
-
-    if (lowerRamo.includes("vida") || lowerRamo.includes("medica")) {
-      setIsVam(true);
-    } else {
-      setIsVam(false);
-    }
-    if (lowerRamo.includes("desgravamen")) {
-    }
+    setIsVam(isVam(nombreRamoAux));
+    // if (nombreRamoAux.toLowerCase().includes("desgravamen")) {
+    // }
   }, [nombreRamoAux]);
   useEffect(() => {
     if (resultNewSiniestro) {
@@ -313,7 +307,6 @@ const ModalNuevoSiniestro = ({
                     defaultOptions
                     loadOptions={loadOptionsClientes}
                     onChange={(valueSelect) => {
-                   
                       setValueClienteSelect(valueSelect);
                       setFieldValue("cdCliente", valueSelect?.value);
                       setCdClienteAux(valueSelect?.value);
