@@ -27,14 +27,6 @@ export const TableColumnsSiniestros = [
     filterable: false,
     accessor: "NM_RAMO",
     id: "CD_RAMO",
-
-    // Cell: (row) => {
-    //   return (
-    //     <div>
-    //       {TIPOS.find((x) => x.value === row.original.tpReclamo)?.label}
-    //     </div>
-    //   );
-    // },
   },
 
   {
@@ -42,15 +34,9 @@ export const TableColumnsSiniestros = [
     width: 120,
     filterable: false,
     accessor: (d) => {
-      return !d.FC_EVENTO
-        ? ""
-        : moment(d.FC_EVENTO).locale("es").format("DD/MM/YYYY");
+      return !d.FC_EVENTO ? "" : moment(d.FC_EVENTO).format("DD/MM/YYYY");
     },
-
     id: "FECHA_EVENTO",
-    // Cell: (row) => {
-    //   return <Estados estado={row.original.estadoPortal} />;
-    // },
   },
   {
     Header: "Fc. Recepción",
@@ -73,8 +59,7 @@ export const TableColumnsSiniestros = [
         ? ""
         : moment(d.FC_CREACION).locale("es").format("DD/MM/YYYY");
     },
-    id: "FECHA_INGRESO",
-    //  show: isAdmin || isEjecutivo,
+    id: "FECHA_INGRESO",  
     width: 120,
   },
   {
@@ -89,29 +74,16 @@ export const TableColumnsSiniestros = [
     Header: "Contratante",
     minResizeWidth: 10,
     filterable: false,
-    sortable: false,
+
     accessor: "NM_CLIENTE",
     id: "CONTRATANTE",
-    // id: "VAL_RECLAMO_PORTAL",
-    width: 160,
-    // Cell: (row) => {
-    //   return (
-    //     <CustomNumberFormat
-    //       value={
-    //         row?.original?.valorReclamoPortal
-    //           ? row?.original?.valorReclamoPortal
-    //           : 0
-    //       }
-    //     />
-    //   );
-    // },
+    width: 160, 
   },
   {
     Header: "Subagente",
     id: "SUB_AGENTE",
     accessor: "AGENTE",
-    filterable: false,
-    // Cell: fechaPrimeraFactura,
+    filterable: false, 
     minResizeWidth: 10,
     width: 160,
   },
@@ -119,14 +91,6 @@ export const TableColumnsSiniestros = [
     Header: "Poliza",
     id: "POLIZA",
     filterable: false,
-    // accessor: (d) => {
-    //   return !d.fcCreacion
-    //     ? ""
-    //     : moment(d.fcCreacion)
-    //         .locale("moment/locale/es")
-    //         .local()
-    //         .format("DD/MM/YYYY");
-    // },
     accessor: "POLIZA",
     minResizeWidth: 10,
     width: 115,
@@ -136,9 +100,7 @@ export const TableColumnsSiniestros = [
     id: "ASEGURADORA",
     accessor: "ALIAS_ASEG",
     filterable: false,
-    // Cell: (row) => {
-    //   return <div>{calcularDias(row.original.fcPrimeraFactura)}</div>;
-    // },
+   
     minResizeWidth: 10,
     width: 150,
   },
@@ -162,23 +124,9 @@ export const TableColumnsSiniestros = [
     minResizeWidth: 10,
     filterable: false,
     accessor: "TALLER",
-    id: "TALLER",
-    // show: isAdmin || isEjecutivo,
-    // Cell: (row) => {
-    //   return <div>{findList(ejecutivos, row.original.cdEjecutivo)?.label}</div>;
-    // },
+    id: "TALLER",    
   },
-  // {
-  //   Header: "Fc. Ultima Gestión",
-  //   minResizeWidth: 10,
-  //   filterable: false,
-  //   accessor: (d) => {
-  //     return !d.FC_SEGUIMIENTO
-  //       ? ""
-  //       : moment(d.FC_SEGUIMIENTO).locale("es").format("DD/MM/YYYY");
-  //   },
-  //   id: "FC_ULT_GESTION",
-  // },
+
 
   {
     Header: "Estado",
@@ -198,6 +146,7 @@ export const TableColumnsSiniestros = [
               obs_est_siniestro: row.original.OBS_EST_SINIESTRO,
               fc_ult_gestion: row.original.FC_SEGUIMIENTO,
             }}
+            row={row}
           />
         </>
       );

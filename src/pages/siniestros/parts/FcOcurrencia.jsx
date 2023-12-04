@@ -16,7 +16,7 @@ const FcOcurrencia = ({ fcOcurrencia }) => {
     clearTimeout(autoSaveTimeout);
     autoSaveTimeout = setTimeout(() => {
       if (!value) return;
-      console.log("IN?: ", value);
+      // console.log("IN?: ", value);
       const obj = {
         cdReclamo: fcOcurrencia.cdReclamo,
         cdSucursal: fcOcurrencia.cdSucursal,
@@ -47,9 +47,9 @@ const FcOcurrencia = ({ fcOcurrencia }) => {
         {({ resetForm, submitForm, setFieldValue, values, isSubmitting }) => {
           // console.log("VALUES: ", values);
           return (
-            <div class="container">
-              <div class="row justify-content-center">
-                <div class="col-12">
+            <div className="container">
+              <div className="row justify-content-center">
+                <div className="col-12">
                   <UqaiField
                     component={DBrokerCalendario}
                     type="date"
@@ -59,7 +59,7 @@ const FcOcurrencia = ({ fcOcurrencia }) => {
                     autoSaveCallback={autoSaveFcOcurrencia}
                   />
                   {aux && (
-                    <div class="text-center mt-1">
+                    <div className="text-center mt-1">
                       <b>Fc. Actualizada</b>
                     </div>
                   )}

@@ -16,12 +16,13 @@ import DBrokerCalendario from "../../../components/DBrokerCalendario";
 import { formatFieldValue } from "../utils";
 import useCdUser from "../../../hooks/useCdUser";
 
-export const Estados = ({ estado }) => {
+export const Estados = ({ estado, row, data, setData }) => {
   const form = useRef();
   const siniestrosData = useSelector((state) => state.estSiniestros.value);
   //const user = useSelector((state) => state.usuarioDBroker.value);
   const [v3, set3] = useState(siniestrosData[0]);
   const [aux, setAux] = useState();
+  const [EST_SINIESTRO, setEST_SINIESTRO] = useState();
   const user = useCdUser();
 
   const estadoObj = siniestrosData.filter(
@@ -53,6 +54,16 @@ export const Estados = ({ estado }) => {
       .post(`${process.env.REACT_APP_API_URL}/nuevoSeguimiento`, nuevoSiniestro)
       .then((res) => {
         //console.log("Res: ", res);
+        const auxData = {...data};
+        auxData["data"][row.index]["OBS_EST_SINIESTRO"] =
+          newValues.txt;
+        auxData["data"][row.index]["EST_SINIESTRO"] = EST_SINIESTRO;
+        auxData["data"][row.index]["FC_SEGUIMIENTO"] = formatFieldValue(
+          newValues.fc_ult_gestion
+        );
+      
+        setData(auxData);
+
         actions.setSubmitting(false);
         setAux(false);
       });
@@ -80,6 +91,7 @@ export const Estados = ({ estado }) => {
                 getOptionLabel={(option) => option.DSC_ESTADO}
                 getOptionValue={(option) => option.CD_EST_SINIESTRO}
                 onChange={(valueSelect) => {
+                  setEST_SINIESTRO(valueSelect.DSC_ESTADO);
                   setFieldValue(
                     "cd_estado_siniestro",
                     valueSelect.CD_EST_SINIESTRO
