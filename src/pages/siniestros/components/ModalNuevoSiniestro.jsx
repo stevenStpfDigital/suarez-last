@@ -10,7 +10,13 @@ import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 import { UqaiField } from "../../../components/UqaiField";
 import DBrokerCalendario from "../../../components/DBrokerCalendario";
-import { debounce, defaultNuevoSiniestro, v_nuevoSiniestro } from "../utils";
+import {
+  debounce,
+  defaultNuevoSiniestro,
+  formatFieldValue,
+  isVam,
+  v_nuevoSiniestro,
+} from "../utils";
 import useCdUser from "../../../hooks/useCdUser";
 import ModalFinanciamiento from "./ModalFinanciamiento";
 
@@ -27,7 +33,6 @@ const ModalNuevoSiniestro = ({
     defaultNuevoSiniestro
   );
 
-  const [financiamientoModal, setFinanciamientoModal] = useState(false);
   const [valuePolizaSelect, setValuePolizaSelect] = useState(null);
   const [valueSucursalSelect, setValueSucursalSelect] = useState(null);
   const [valueClienteSelect, setValueClienteSelect] = useState(null);
@@ -35,6 +40,7 @@ const ModalNuevoSiniestro = ({
   const [valueRamoSelect, setValueRamoSelect] = useState(null);
   const [valueAseguradoSelect, setValueAseguradoSelect] = useState(null);
   const [placaSelect, setPlacaSelect] = useState([]);
+  const [inputPlaca, setInputPlaca] = useState(null);
   const [cdClienteAux, setCdClienteAux] = useState(null);
   const [cdRamoAux, setCdRamoAux] = useState(null);
   const [nombreRamoAux, setNombreRamoAux] = useState(null);
@@ -47,13 +53,13 @@ const ModalNuevoSiniestro = ({
   const [groupedOptionsSucursal, setGroupedOptionsSucursal] = useState([]);
   const [polizaOptions, setPolizaOptions] = useState([]);
   const [aseguradoOptions, setAseguradoOptions] = useState([]);
+  const [isVamResult, setIsVamResult] = useState(false);
+  const [resultNewSiniestro, setResultNewSiniestro] = useState(false);
+  const [financiamientoModal, setFinanciamientoModal] = useState(false);
+  const [valueDiagnosticoSelect, setValueDiagnosticoSelect] = useState(null);
   const aseguradorasData = useSelector((state) => state.aseguradoras.value);
   const ramosData = useSelector((state) => state.ramos.value);
   const sucursalData = useSelector((state) => state.sucursal.value);
-  const [v0, set0] = useState(null);
-  const [inputPlaca, setInputPlaca] = useState(null);
-  const [isVam, setIsVam] = useState(false);
-  const [resultNewSiniestro, setResultNewSiniestro] = useState(false);
   const aseguradoraProperties = ["ID", "CD_ASEGURADORA"];
   const ramoProperties = ["CD_RAMO", "CD_RAMO"];
   const sucursalProperties = ["ID", "CD_COMPANIA"];
@@ -87,8 +93,8 @@ const ModalNuevoSiniestro = ({
     const obj = {
       cdRC: valuePolizaSelect?.CD_RAMO_COTIZACION || "%",
       cdSucursal: cdSucursalAux || "%",
-      poliza: "%", // valuePolizaSelect.POLIZA,
-      cdCliente: cdClienteAux || "%", //cdClienteAux
+      poliza: valuePolizaSelect?.POLIZA || "%",
+      cdCliente: cdClienteAux || "%",
       placa: inputPlaca?.toUpperCase() || "%",
     };
     axios.post(`${process.env.REACT_APP_API_URL}/placas`, obj).then((res) => {
@@ -109,14 +115,17 @@ const ModalNuevoSiniestro = ({
       nombreRamoAux
     ) {
       searchDataAsegurados(newValues);
+    } else {
+      searchDataAsegurados([]);
     }
   }, [cdSucursalAux, nombreRamoAux, valuePolizaSelect]);
   useEffect(() => {
     if (!nombreRamoAux) return;
-    setIsVam(isVam(nombreRamoAux));
+    setIsVamResult(isVam(nombreRamoAux));
     // if (nombreRamoAux.toLowerCase().includes("desgravamen")) {
     // }
   }, [nombreRamoAux]);
+
   useEffect(() => {
     if (resultNewSiniestro) {
       const timeoutId = setTimeout(resetResult, 3000);
@@ -142,16 +151,6 @@ const ModalNuevoSiniestro = ({
       (item) => !filterByProperties(item, data, filterProperties)
     ),
   });
-  const getCliente = async (value) => {
-    const response = await axios.get(
-      `${process.env.REACT_APP_API_URL}/Clientes/${value}`
-    );
-    const formatedData = response.data.map((result) => ({
-      value: result.ID,
-      label: `${result.NOMBRES} ${result.APELLIDOS || null}`,
-    }));
-    return formatedData;
-  };
 
   const fetchData = async () => {
     try {
@@ -214,12 +213,8 @@ const ModalNuevoSiniestro = ({
         `${process.env.REACT_APP_API_URL}/polizas`,
         values
       );
-
       setPolizaOptions(response.data);
-    } catch (error) {
-      console.log("ERROR: ", error);
-      // return [];
-    }
+    } catch (error) {}
   };
   const searchDataAsegurados = async (values) => {
     try {
@@ -233,40 +228,27 @@ const ModalNuevoSiniestro = ({
       });
 
       setAseguradoOptions(arrayDeObjetos);
-    } catch (error) {
-      console.log("ERROR: ", error);
-    }
+    } catch (error) {}
   };
 
   const onSubmit = async (newValues, actions, resetForm) => {
-    const backFormat = "DD/MM/YYYY";
-    const formatFieldValue = (value) => moment(value).format(backFormat);
     let values = { ...newValues };
     values.fcRecepcion = formatFieldValue(values.fcRecepcion);
     values.fcEvento = formatFieldValue(values.fcEvento);
     values.usuario = user;
 
-    //console.log("VALUES?_ ", values);
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/nuevoSiniestro`,
         values
       );
-      //  console.log("SUCCES? : ", response);
       setResultNewSiniestro(true);
-      //setNewSiniestroValues(defaultNuevoSiniestro);
-
       actions.setSubmitting(false);
-    } catch (error) {
-      console.log("ERROR: ", error);
-    }
+    } catch (error) {}
   };
   const handleResetForm = (resetForm) => {
     resetForm();
   };
-  // const loadOptionsPlacas = debounce(async (inputValue, callback) => {
-  //   callback(await getPlacasByParams(inputValue));
-  // });
 
   const setStaticOptionsSelect = () => {
     setGroupedOptionsSucursal(sucursalData);
@@ -383,12 +365,12 @@ const ModalNuevoSiniestro = ({
                               display: "flex",
                               cursor: "pointer",
                               alignItems: "center",
-                              padding: "1px", // Ajusta esto según tus necesidades
-                              backgroundColor: "#FFFFFF", // Color de fondo predeterminado
+                              padding: "1px",
+                              backgroundColor: "#FFFFFF",
                             }}
-                            onHover={() =>
-                              (this.style.backgroundColor = "#DEEBFF")
-                            }
+                            // onHover={() =>
+                            //   (this.style.backgroundColor = "#DEEBFF")
+                            // }
                             {...props.innerProps}
                           >
                             <div>
@@ -412,6 +394,11 @@ const ModalNuevoSiniestro = ({
                     }}
                     onChange={(valueSelect) => {
                       setValuePolizaSelect(valueSelect);
+                      if (!valueSelect) {
+                        setValuePolizaSelect(null);
+                      }
+                      console.log("VALUESELECT: ", valueSelect);
+
                       setFieldValue("poliza", valueSelect?.POLIZA);
                       setFieldValue("cdFactAseg", valueSelect?.FACT_ASEG);
                       setFieldValue("cdAnexo", valueSelect?.ANEXO);
@@ -436,23 +423,18 @@ const ModalNuevoSiniestro = ({
                     isClearable
                     value={valueAseguradoSelect}
                     options={aseguradoOptions}
-                    // getOptionLabel={(option) => option.asegurado}
-                    // getOptionValue={(option) => option.asegurado}
                     onChange={(valueSelect) => {
                       setFieldValue("nmAsegurado", valueSelect?.value);
                       if (valueSelect.__isNew__) {
-                        //console.log("VALUE ASEGURADO: ", valueSelect.__isNew__);
-
                         setFieldValue("cdAsegurado", 0);
                       } else {
                         setFieldValue("cdAsegurado", valueSelect?.value);
                       }
                       setValueAseguradoSelect(valueSelect);
-                      // console.log("VALUE ASEGURADO: ", valueSelect);
                     }}
                   />
                 </div>
-                {isVam && (
+                {isVamResult && (
                   <div className="col-2">
                     <label className="form-label fw-bold text-secondary fs-7">
                       Titular-Dependiente:
@@ -546,10 +528,10 @@ const ModalNuevoSiniestro = ({
                   <label className="form-label fw-bold text-secondary fs-7">
                     Diagnostico-causa:
                   </label>
-                  <AsyncSelect
-                    placeholder="Diagnostico-causa"
+                  <AsyncSelect            
+                    placeholder="Diagnostico-ca..."
                     isClearable
-                    value={v0}
+                    value={valueDiagnosticoSelect}
                     cacheOptions
                     defaultOptions
                     loadOptions={loadOptionsDiagnostico}
@@ -557,7 +539,7 @@ const ModalNuevoSiniestro = ({
                       setFieldValue("tpDiagnostico", valueSelect?.value);
                       setFieldValue("cdDiagnostico", valueSelect?.value);
                       setFieldValue("nmDiagnostico", valueSelect?.label);
-                      set0(valueSelect);
+                      setValueDiagnosticoSelect(valueSelect);
                     }}
                   />
                 </div>
