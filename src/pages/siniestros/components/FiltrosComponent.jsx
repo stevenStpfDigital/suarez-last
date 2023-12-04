@@ -47,7 +47,6 @@ const FiltrosSideBarComponent = ({
     const currentUser = selectsData.usuariosD.find(
       (item) => item.USUARIO === user
     );
-
     return currentUser || selectsData.usuariosD[0];
   };
 
@@ -83,7 +82,6 @@ const FiltrosSideBarComponent = ({
                   onSubmit={onSubmit}
                   enableReinitialize={true}
                   validateOnChange={false}
-                  // validationSchema={v_filtro} --> VALIDATION
                   ref={form}
                 >
                   {({
@@ -110,7 +108,6 @@ const FiltrosSideBarComponent = ({
                           }}
                         />
                       </div>
-
                       <div className="col-12">
                         <label className="form-label fw-bold text-secondary fs-7">
                           Póliza:
@@ -137,12 +134,6 @@ const FiltrosSideBarComponent = ({
                         <label className="form-label fw-bold text-secondary fs-7">
                           Año:
                         </label>
-                        {/* <UqaiField
-                          type="number"
-                          name={"año"}
-                          className={"form-control"}
-                          placeholder={"TODOS"}
-                        /> */}
                         <Select
                           value={v9}
                           defaultValue={selectsData.anios[0]}
@@ -157,7 +148,6 @@ const FiltrosSideBarComponent = ({
                         <label className="form-label fw-bold text-secondary fs-7">
                           Aseguradora:
                         </label>
-
                         <Select
                           value={v1}
                           defaultValue={selectsData.aseguradora[0]}
@@ -225,7 +215,6 @@ const FiltrosSideBarComponent = ({
                         <label className="form-label fw-bold text-secondary fs-7">
                           Sucursal:
                         </label>
-
                         <Select
                           value={v4}
                           defaultValue={selectsData.sucursal[0]}
@@ -242,7 +231,6 @@ const FiltrosSideBarComponent = ({
                         <label className="form-label fw-bold text-secondary fs-7">
                           Usuario:
                         </label>
-
                         <Select
                           value={v5}
                           defaultValue={selectsData.usuariosD[0]}
@@ -259,7 +247,6 @@ const FiltrosSideBarComponent = ({
                         <label className="form-label fw-bold text-secondary fs-7">
                           Fc.Ingreso:
                         </label>
-
                         <div className=" row  align-items-center">
                           <div className="col-1 p-0">
                             <UqaiField
@@ -290,7 +277,7 @@ const FiltrosSideBarComponent = ({
                           </div>
                           <div className="col-11">
                             <UqaiField
-                              component={DBrokerCalendario}                         
+                              component={DBrokerCalendario}
                               name="fcEvento"
                               className="form-control"
                               placeholder="DD/MM/AAAA"
@@ -311,7 +298,7 @@ const FiltrosSideBarComponent = ({
                           </div>
                           <div className="col-11">
                             <UqaiField
-                              component={DBrokerCalendario}                              
+                              component={DBrokerCalendario}
                               name="fcRecepcion"
                               className="form-control"
                               placeholder="DD/MM/AAAA"
@@ -332,7 +319,7 @@ const FiltrosSideBarComponent = ({
                           </div>
                           <div className="col-11">
                             <UqaiField
-                              component={DBrokerCalendario}                              
+                              component={DBrokerCalendario}
                               name="fcGestion"
                               className="form-control"
                               placeholder="DD/MM/AAAA"
@@ -355,30 +342,7 @@ const FiltrosSideBarComponent = ({
                             set6(valueSelect);
                           }}
                         />
-                      </div>
-                      {/* <div className="col-6">
-                          <label className="form-label fw-bold text-secondary fs-7">
-                            Prioridad:
-                          </label>
-
-                          <Select
-                            value={valuePrioridad}
-                            components={{
-                              Option: (props) => (
-                                <Option
-                                  {...props}
-                                  color={props.data.color} // Accede al color personalizado
-                                  label={props.data.label} // Accede al label personalizado
-                                />
-                              ),
-                            }}
-                            options={PRIORIDAD_SELECTS}
-                            onChange={(valueSelect) => {
-                              setFieldValue("cdPrioridad", valueSelect.value);
-                              setValuePrioridad(valueSelect);
-                            }}
-                          />
-                        </div> */}
+                      </div>             
                       <div className="col-12">
                         <label className="form-label fw-bold text-secondary fs-7">
                           Diagnostico:
@@ -410,7 +374,6 @@ const FiltrosSideBarComponent = ({
                         <label className="form-label fw-bold text-secondary fs-7">
                           Taller:
                         </label>
-
                         <Select
                           value={v8}
                           defaultValue={selectsData.taller[0]}
@@ -439,12 +402,12 @@ const FiltrosSideBarComponent = ({
                               set2(selectsData.agentes[0]);
                               set3(selectsData.estSiniestro[0]);
                               set4(selectsData.sucursal[0]);
-                              set5(selectsData.usuariosD[0]);
+                              set5(getCurrentUserDBroker());
                               set6(selectsData.subArea[0]);
                               set7(selectsData.ramos[0]);
                               set8(selectsData.taller[0]);
                               set9(selectsData.anios[0]);
-
+                              set10(null);
                               handleResetForm(resetForm);
                             }}
                           >

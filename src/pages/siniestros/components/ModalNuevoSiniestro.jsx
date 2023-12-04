@@ -647,12 +647,12 @@ const ModalNuevoSiniestro = ({
                         <>
                           <button
                             type="button"
-                            className="btn btn-danger " // Agregar margen a la derecha
+                            className="btn btn-success " // Agregar margen a la derecha
                             onClick={() => {
                               setFinanciamientoModal(true);
                             }}
                           >
-                            Financiamiento
+                            <i className="icon-uqai uqai-tipo_gasto text-white"></i>
                           </button>
                         </>
                       )} */}
