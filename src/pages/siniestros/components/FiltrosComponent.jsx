@@ -9,6 +9,7 @@ import AsyncSelect from "react-select/async";
 import Select from "react-select";
 import { UqaiField } from "../../../components/UqaiField";
 import useCdUser from "../../../hooks/useCdUser";
+import DBrokerText from "../../../components/DBrokerText";
 
 const FiltrosSideBarComponent = ({
   query,
@@ -118,6 +119,7 @@ const FiltrosSideBarComponent = ({
                           Póliza:
                         </label>
                         <UqaiField
+                          component={DBrokerText}
                           type="text"
                           name={"poliza"}
                           className={"form-control"}
@@ -369,6 +371,7 @@ const FiltrosSideBarComponent = ({
                           Placa:
                         </label>
                         <UqaiField
+                          component={DBrokerText}
                           type="text"
                           name={"cdPlaca"}
                           className={"form-control"}

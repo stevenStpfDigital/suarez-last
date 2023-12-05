@@ -74,20 +74,12 @@ export const FiltrosSiniestros = () => {
 
     const emailUser = decryptEmail(reConstructValue(field_valid));
     const emailUserJson = JSON.parse(emailUser);
-
     const correo = {
       correo: emailUserJson.email,
       //correo: "czhunio@segurossuarez.com",
     };
 
-    axios
-      .post(`${process.env.REACT_APP_API_URL}/Usuarios/login`, correo)
-      .then((res) => {
-        if (res.data[0]) {
-          dispatch(save_data_storage_usuariosDBroker(res.data[0]));
-          setDBrokerUSer(res.data[0]);
-        }
-      });
+    retriveUserBroker(correo);
   }, [field_valid]);
   useEffect(() => {}, [data]);
 
@@ -103,6 +95,21 @@ export const FiltrosSiniestros = () => {
     getTallers();
     setAnios(generateYearOptions());
   }, []);
+
+  const retriveUserBroker = async (correo) => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/Usuarios/login`,
+        correo
+      );
+      if (response.data[0]) {
+        dispatch(save_data_storage_usuariosDBroker(response.data[0]));
+        setDBrokerUSer(response.data[0]);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const getAseguradora = () => {
     axios
@@ -167,10 +174,7 @@ export const FiltrosSiniestros = () => {
   };
   const getPlacas = () => {
     axios.get(`${process.env.REACT_APP_API_URL}/placas`).then((res) => {
-      const dataWithTodos = [
-        { ID: "%", SUBAREA: "TODOS" },
-        ...res.data, // Mantén los elementos existentes
-      ];
+      const dataWithTodos = [{ ID: "%", SUBAREA: "TODOS" }, ...res.data];
 
       setPlacas(dataWithTodos);
     });
@@ -180,7 +184,7 @@ export const FiltrosSiniestros = () => {
     axios.get(`${process.env.REACT_APP_API_URL}/talleres`).then((res) => {
       const dataWithTodos = [
         { CD_TALLER: "%", DSC_TALLER: "TODOS" },
-        ...res.data, // Mantén los elementos existentes
+        ...res.data,
       ];
 
       setTaller(dataWithTodos);
@@ -203,7 +207,7 @@ export const FiltrosSiniestros = () => {
     }
     return object;
   }
-  const fetchDataDbroker = (q, actions) => {
+  const fetchDataDbroker = async (q, actions) => {
     setData((prevData) => ({
       ...prevData,
       loading: true,
@@ -241,18 +245,33 @@ export const FiltrosSiniestros = () => {
       checkFcGestion,
       ...rest
     } = queryDbroker;
+
     //console.log("QUERY: ", rest);
-    axios
-      .post(`${process.env.REACT_APP_API_URL}/Siniestros`, rest)
-      .then((res) => {
-        //console.log("SINIESTROS RESPONSE: ", res);
-        setData({
-          data: res.data || [],
-          //data: res.data.slice(0, 1) || [],
-          loading: false,
-          pageSize: 10,
-        });
+    const endpoint =
+      queryDbroker.cdUsuario === "" ? "SiniestrosAsignar" : "Siniestros";
+    try {
+      console.log("INCALL?");
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/${endpoint}`,
+        rest
+      );
+      console.log("SINIESTROS RESPONSE: ", response);
+
+      setData({
+        data: response.data || [],
+        //data: res.data.slice(0, 1) || [],
+        loading: false,
+        pageSize: 10,
       });
+    } catch (error) {
+      console.error("ERROR: ", error);
+      setData({
+        data: [],
+        //data: res.data.slice(0, 1) || [],
+        loading: false,
+        pageSize: 10,
+      });
+    }
 
     actions.setSubmitting(false);
   };
@@ -539,7 +558,7 @@ export const FiltrosSiniestros = () => {
                                 );
                               },
                             },
-                        
+
                             {
                               Header: "",
                               filterable: false,

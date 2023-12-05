@@ -15,6 +15,7 @@ import moment from "moment/moment";
 import DBrokerCalendario from "../../../components/DBrokerCalendario";
 import { formatFieldValue } from "../utils";
 import useCdUser from "../../../hooks/useCdUser";
+import DBrokerText from "../../../components/DBrokerText";
 
 export const Estados = ({ estado, row, data, setData }) => {
   const form = useRef();
@@ -38,7 +39,6 @@ export const Estados = ({ estado, row, data, setData }) => {
     }
   }, [siniestrosData]);
 
-
   const resetForm = (resetForm) => {
     resetForm();
   };
@@ -54,11 +54,9 @@ export const Estados = ({ estado, row, data, setData }) => {
       cd_estado_siniestro: newValues.cd_estado_siniestro,
     };
 
-
     axios
       .post(`${process.env.REACT_APP_API_URL}/nuevoSeguimiento`, nuevoSiniestro)
       .then((res) => {
-      
         const auxData = { ...data };
         auxData["data"][row.index]["OBS_EST_SINIESTRO"] = newValues.txt;
         auxData["data"][row.index]["EST_SINIESTRO"] = EST_SINIESTRO;
@@ -108,6 +106,7 @@ export const Estados = ({ estado, row, data, setData }) => {
 
             <div className="col-4">
               <UqaiField
+                component={DBrokerText}
                 type="text"
                 name={"txt"}
                 className={"form-control"}
