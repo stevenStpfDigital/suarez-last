@@ -273,7 +273,7 @@ const ModalNuevoSiniestro = ({
           validationSchema={v_nuevoSiniestro}
         >
           {({ resetForm, submitForm, values, isSubmitting, setFieldValue }) => {
-            // console.log("v_nuevoSiniestro: ", v_nuevoSiniestro);
+  
             return (
               <div className="row my-3">
                 <div className="col-2">
@@ -289,6 +289,10 @@ const ModalNuevoSiniestro = ({
                     defaultOptions
                     loadOptions={loadOptionsClientes}
                     onChange={(valueSelect) => {
+                      if (!valueSelect) {
+                        setFinanciamientoModal(false);
+                        setValuePolizaSelect(null);
+                      }
                       setValueClienteSelect(valueSelect);
                       setFieldValue("cdCliente", valueSelect?.value);
                       setCdClienteAux(valueSelect?.value);
@@ -397,7 +401,6 @@ const ModalNuevoSiniestro = ({
                       if (!valueSelect) {
                         setValuePolizaSelect(null);
                       }
-                      console.log("VALUESELECT: ", valueSelect);
 
                       setFieldValue("poliza", valueSelect?.POLIZA);
                       setFieldValue("cdFactAseg", valueSelect?.FACT_ASEG);
@@ -528,7 +531,7 @@ const ModalNuevoSiniestro = ({
                   <label className="form-label fw-bold text-secondary fs-7">
                     Diagnostico-causa:
                   </label>
-                  <AsyncSelect            
+                  <AsyncSelect
                     placeholder="Diagnostico-ca..."
                     isClearable
                     value={valueDiagnosticoSelect}
@@ -555,7 +558,7 @@ const ModalNuevoSiniestro = ({
                     getOptionLabel={(option) => option.PLACA}
                     getOptionValue={(option) => option.PLACA}
                     onChange={(valueSelect) => {
-                      // console.log("VALUESELECTED: ", valueSelect);
+               
                       setValuePolizaSelect(valueSelect);
                       setFieldValue("placa", valueSelect?.PLACA);
                       setFieldValue("poliza", valueSelect?.POLIZA);
@@ -625,7 +628,7 @@ const ModalNuevoSiniestro = ({
                 <div className="d-flex justify-content-end col-12  mt-3  ">
                   <div className="d-flex col-3 justify-content-between ">
                     <div>
-                      {/* {valuePolizaSelect && (
+                      {valuePolizaSelect && (
                         <>
                           <button
                             type="button"
@@ -637,7 +640,7 @@ const ModalNuevoSiniestro = ({
                             <i className="icon-uqai uqai-tipo_gasto text-white"></i>
                           </button>
                         </>
-                      )} */}
+                      )}
                     </div>
 
                     <div>
@@ -665,15 +668,18 @@ const ModalNuevoSiniestro = ({
             );
           }}
         </UqaiFormik>
+        {financiamientoModal && (
+          <ModalFinanciamiento
+            open={financiamientoModal}
+            setOpen={setFinanciamientoModal}
+            valuePolizaSelect={valuePolizaSelect}
+          />
+        )}
         {resultNewSiniestro && (
           <div class=" d-flex justify-content-center">
             <b>Respuesta exitosa</b>
           </div>
         )}
-        <ModalFinanciamiento
-          open={financiamientoModal}
-          setOpen={setFinanciamientoModal}
-        />
       </ModalBody>
     </Modal>
   );

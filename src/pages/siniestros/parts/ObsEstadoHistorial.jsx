@@ -16,6 +16,7 @@ const ObsEstadoHistorial = ({ data, open, setOpen }) => {
           data
         );
 
+
         if (isLoading) {
           setList(response.data);
           setIsLoading(false);
@@ -57,7 +58,7 @@ const ObsEstadoHistorial = ({ data, open, setOpen }) => {
                 <tr key={x.CD_INSPECCION}>
                   <td className="w-25" style={{ minWidth: "100px" }}>
                     <div>
-                      {moment(x.FC_CREACION)
+                      {moment(x.FC_INSPECCION)
                         .locale("es")
                         .format("DD/MM/YYYY HH:mm:ss")}
                     </div>

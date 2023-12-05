@@ -45,7 +45,7 @@ const FcOcurrencia = ({ fcOcurrencia }) => {
         onSubmit={handleOnSubmit}
       >
         {({ resetForm, submitForm, setFieldValue, values, isSubmitting }) => {
-          // console.log("VALUES: ", values);
+      
           return (
             <div className="container">
               <div className="row justify-content-center">

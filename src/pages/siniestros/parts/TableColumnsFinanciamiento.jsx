@@ -12,8 +12,8 @@ export const TableColumnsFinanciamiento = [
     Header: "Nº Cuota",
     width: 120,
     filterable: false,
-    accessor: "NUM_SINIESTRO",
-    id: "NUM_SINIESTRO",
+    accessor: "ORDINAL",
+    id: "ORDINAL",
     style: {
       textAlign: "center", // Centra el contenido de la columna
     },
@@ -25,8 +25,12 @@ export const TableColumnsFinanciamiento = [
     Header: "Fc. Vencimiento",
     width: 120,
     filterable: false,
-    accessor: "NM_RAMO",
-    id: "CD_RAMO",
+    accessor: (d) => {
+      return !d.FC_VENCIMIENTO
+        ? ""
+        : moment(d.FC_VENCIMIENTO).format("DD/MM/YYYY");
+    },
+    id: "FC_VENCIMIENTO",
   },
 
   {
@@ -34,20 +38,16 @@ export const TableColumnsFinanciamiento = [
     width: 120,
     filterable: false,
     accessor: (d) => {
-      return !d.FC_EVENTO ? "" : moment(d.FC_EVENTO).format("DD/MM/YYYY");
+      return d.VALOR?.toFixed(2);
     },
-    id: "FECHA_EVENTO",  
+    id: "VALOR",
   },
   {
     Header: "Flag Pago",
     minResizeWidth: 10,
     filterable: false,
-    accessor: (d) => {
-      return !d.FC_RECEPCION_BRK
-        ? ""
-        : moment(d.FC_RECPCION_BRK).locale("es").format("DD/MM/YYYY");
-    },
-    id: "FECHA_RECEPCION",
+    accessor: "FLG_PAGO",
+    id: "FLG_PAGO",
     width: 120,
   },
   {
@@ -55,50 +55,49 @@ export const TableColumnsFinanciamiento = [
     minResizeWidth: 10,
     filterable: false,
     accessor: (d) => {
-      return !d.FC_CREACION
-        ? ""
-        : moment(d.FC_CREACION).locale("es").format("DD/MM/YYYY");
+      return d.SALDO_PAGO?.toFixed(2);
     },
-    id: "FECHA_INGRESO",
+    id: "SALDO_PAGO",
     width: 120,
   },
   {
     Header: "Fc. Pago",
     minResizeWidth: 10,
     filterable: false,
-    accessor: "ASEGURADO",
-    id: "ASEGURADO",
+    accessor: (d) => {
+      return !d.FC_PAGO ? "" : moment(d.FC_PAGO).format("DD/MM/YYYY");
+    },
+    id: "FC_PAGO",
     width: 160,
   },
   {
     Header: "Nº Factura",
     minResizeWidth: 10,
     filterable: false,
-    accessor: "NM_CLIENTE",
-    id: "CONTRATANTE",
+    accessor: "FACT_ASEG",
+    id: "FACT_ASEG",
     width: 160,
-
   },
   {
     Header: "Nº Retención",
-    id: "SUB_AGENTE",
-    accessor: "AGENTE",
+    id: "NUM_RETENCION",
+    accessor: "NUM_RETENCION",
     filterable: false,
     minResizeWidth: 10,
     width: 160,
   },
   {
     Header: "Val Retención",
-    id: "POLIZA",
+    id: "VAL_RETENCION",
     filterable: false,
-    accessor: "POLIZA",
+    accessor: "VAL_RETENCION",
     minResizeWidth: 10,
     width: 115,
   },
   {
     Header: "Observaciones",
-    id: "ASEGURADORA",
-    accessor: "ALIAS_ASEG",
+    id: "OBSERVACIONES",
+    accessor: "OBSERVACIONES",
     filterable: false,
     minResizeWidth: 10,
     width: 150,

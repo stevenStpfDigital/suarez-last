@@ -3,7 +3,7 @@ import UqaiFormik from "../../../components/UqaiFormik";
 import { UqaiField } from "../../../components/UqaiField";
 
 const TextComent = (txt) => {
-  // console.log("Estado: ", txt);
+
   const form = useRef();
 
   return (

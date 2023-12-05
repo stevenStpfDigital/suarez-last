@@ -20,8 +20,12 @@ export const Estados = ({ estado, row, data, setData }) => {
   const form = useRef();
   const siniestrosData = useSelector((state) => state.estSiniestros.value);
   //const user = useSelector((state) => state.usuarioDBroker.value);
-  const [v3, set3] = useState(siniestrosData[0]);
+  const [v3, set3] = useState(null);
   const [aux, setAux] = useState();
+  // const [fcInspeccion, setFcInspeccion] = useState(
+  //   moment(estado.fc_ult_gestion).format("YYYY-MM-DDTHH:mm")
+  // );
+
   const [EST_SINIESTRO, setEST_SINIESTRO] = useState();
   const user = useCdUser();
 
@@ -33,6 +37,7 @@ export const Estados = ({ estado, row, data, setData }) => {
       set3(estadoObj);
     }
   }, [siniestrosData]);
+
 
   const resetForm = (resetForm) => {
     resetForm();
@@ -48,21 +53,20 @@ export const Estados = ({ estado, row, data, setData }) => {
       usuario: user,
       cd_estado_siniestro: newValues.cd_estado_siniestro,
     };
-    //console.log("NUEVO SINIESTRO?: ", nuevoSiniestro);
+
 
     axios
       .post(`${process.env.REACT_APP_API_URL}/nuevoSeguimiento`, nuevoSiniestro)
       .then((res) => {
-        //console.log("Res: ", res);
-        const auxData = {...data};
-        auxData["data"][row.index]["OBS_EST_SINIESTRO"] =
-          newValues.txt;
-        auxData["data"][row.index]["EST_SINIESTRO"] = EST_SINIESTRO;
-        auxData["data"][row.index]["FC_SEGUIMIENTO"] = formatFieldValue(
-          newValues.fc_ult_gestion
-        );
       
+        const auxData = { ...data };
+        auxData["data"][row.index]["OBS_EST_SINIESTRO"] = newValues.txt;
+        auxData["data"][row.index]["EST_SINIESTRO"] = EST_SINIESTRO;
+        auxData["data"][row.index]["FC_SEGUIMIENTO"] =
+          moment().format("YYYY-MM-DDTHH:mm");
+
         setData(auxData);
+        // setFcInspeccion(moment().format("YYYY-MM-DDTHH:mm"));
 
         actions.setSubmitting(false);
         setAux(false);
@@ -77,7 +81,6 @@ export const Estados = ({ estado, row, data, setData }) => {
         initialValues={{
           txt: null,
           cd_estado_siniestro: null,
-          fc_ult_gestion: moment(estado.fc_ult_gestion),
         }}
         onSubmit={handleOnSubmit}
       >
@@ -103,15 +106,7 @@ export const Estados = ({ estado, row, data, setData }) => {
               />
             </div>
 
-            {/* <div className="col-3">
-              <UqaiField
-                name="fc_inspecion"
-                placeholder="Ingrese Fecha"
-                component={UqaiCalendario}
-              />
-            </div> */}
-
-            <div className="col-3">
+            <div className="col-4">
               <UqaiField
                 type="text"
                 name={"txt"}
@@ -119,14 +114,12 @@ export const Estados = ({ estado, row, data, setData }) => {
                 placeholder={estado.obs_est_siniestro}
               />
             </div>
-            <div className="col-5">
-              <UqaiField
-                component={DBrokerCalendario}
-                includeTime
-                name={"fc_ult_gestion"}
-                className={"form-control"}
-                placeholder={"DD/MM/AAAA"}
-              />
+            <div className="col-4 d-flex align-items-center">
+              <div>
+                <p className="m-0">
+                  {moment(estado.fc_ult_gestion).format("YYYY-MM-DDTHH:mm")}
+                </p>
+              </div>
             </div>
 
             {aux && (

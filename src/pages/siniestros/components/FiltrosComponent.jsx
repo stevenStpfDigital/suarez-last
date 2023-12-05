@@ -98,13 +98,18 @@ const FiltrosSideBarComponent = ({
                         </label>
                         <AsyncSelect
                           placeholder="TODOS"
+                          isClearable
                           value={v0}
                           cacheOptions
                           defaultOptions
                           loadOptions={loadOptionsNew}
                           onChange={(valueSelect) => {
-                            setFieldValue("cdCliente", valueSelect.value);
                             set0(valueSelect);
+                            if (!valueSelect) {
+                              setFieldValue("cdCliente", "%");
+                              return;
+                            }
+                            setFieldValue("cdCliente", valueSelect.value);
                           }}
                         />
                       </div>
@@ -342,7 +347,7 @@ const FiltrosSideBarComponent = ({
                             set6(valueSelect);
                           }}
                         />
-                      </div>             
+                      </div>
                       <div className="col-12">
                         <label className="form-label fw-bold text-secondary fs-7">
                           Diagnostico:

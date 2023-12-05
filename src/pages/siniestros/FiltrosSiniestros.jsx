@@ -171,7 +171,7 @@ export const FiltrosSiniestros = () => {
         { ID: "%", SUBAREA: "TODOS" },
         ...res.data, // Mantén los elementos existentes
       ];
-      //console.log("PLACAS: ", dataWithTodos);
+
       setPlacas(dataWithTodos);
     });
   };
@@ -539,6 +539,7 @@ export const FiltrosSiniestros = () => {
                                 );
                               },
                             },
+                        
                             {
                               Header: "",
                               filterable: false,
