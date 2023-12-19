@@ -3,6 +3,7 @@ import PagesDBroker from "../../layout/PagesDBroker";
 import { Card, CardBody, CardHeader } from "reactstrap";
 import {
   PRIORIDAD_INTERVALES,
+  customSortMethodDate,
   debounce,
   defaultNuevoSiniestroFilter,
   formatFieldValue,
@@ -37,7 +38,7 @@ export const FiltrosSiniestros = () => {
     loading: false,
     pageSize: 10,
   });
-  const [newQuery, setNewQuery] = useState(defaultNuevoSiniestroFilter());
+
   const [dbrokerUser, setDBrokerUSer] = useState(null);
   const [aseguradora, setAseguradora] = useState([]);
   const [aseguradoraSiniestro, setAseguradoraSiniestro] = useState([]);
@@ -84,7 +85,6 @@ export const FiltrosSiniestros = () => {
   useEffect(() => {}, [data]);
 
   useEffect(() => {
-    setNewQuery(defaultNuevoSiniestroFilter());
     getAseguradora();
     getAgentes();
     getEstSiniestro();
@@ -250,12 +250,11 @@ export const FiltrosSiniestros = () => {
     const endpoint =
       queryDbroker.cdUsuario === "" ? "SiniestrosAsignar" : "Siniestros";
     try {
-      console.log("INCALL?");
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/${endpoint}`,
         rest
       );
-      console.log("SINIESTROS RESPONSE: ", response);
+    
 
       setData({
         data: response.data || [],
@@ -267,7 +266,6 @@ export const FiltrosSiniestros = () => {
       console.error("ERROR: ", error);
       setData({
         data: [],
-        //data: res.data.slice(0, 1) || [],
         loading: false,
         pageSize: 10,
       });
@@ -331,7 +329,6 @@ export const FiltrosSiniestros = () => {
             <div>
               <div className="col-12 ">
                 <FiltrosSideBarComponent
-                  query={newQuery}
                   onSubmit={onSubmit}
                   handleResetForm={handleResetForm}
                   selectsData={{
@@ -438,18 +435,20 @@ export const FiltrosSiniestros = () => {
                                   ? ""
                                   : moment(d.FC_EVENTO).format("DD/MM/YYYY");
                               },
-                              id: "FECHA_EVENTO",
+                              sortMethod: customSortMethodDate,
+                              id: "FC_EVENTO",
                             },
                             {
                               Header: "Fc. Recepción",
                               minResizeWidth: 10,
                               filterable: false,
+                              sortMethod: customSortMethodDate,
                               accessor: (d) => {
                                 return !d.FC_RECEPCION_BRK
                                   ? ""
-                                  : moment(d.FC_RECPCION_BRK)
-                                      .locale("es")
-                                      .format("DD/MM/YYYY");
+                                  : moment(d.FC_RECPCION_BRK).format(
+                                      "DD/MM/YYYY"
+                                    );
                               },
                               id: "FECHA_RECEPCION",
                               width: 120,
@@ -458,12 +457,11 @@ export const FiltrosSiniestros = () => {
                               Header: "Fc. Ingreso",
                               minResizeWidth: 10,
                               filterable: false,
+                              sortMethod: customSortMethodDate,
                               accessor: (d) => {
                                 return !d.FC_CREACION
                                   ? ""
-                                  : moment(d.FC_CREACION)
-                                      .locale("es")
-                                      .format("DD/MM/YYYY");
+                                  : moment(d.FC_CREACION).format("DD/MM/YYYY");
                               },
                               id: "FECHA_INGRESO",
                               width: 120,
@@ -590,14 +588,14 @@ export const FiltrosSiniestros = () => {
                             {
                               Header: "Fc. Ocurrencia",
                               minResizeWidth: 10,
+                            
                               width: 180,
                               filterable: false,
+                              sortMethod: customSortMethodDate,
                               accessor: (d) => {
                                 return !d.FC_EVENTO
                                   ? ""
-                                  : moment(d.FC_EVENTO)
-                                      .locale("es")
-                                      .format("DD/MM/YYYY");
+                                  : moment(d.FC_EVENTO).format("DD/MM/YYYY");
                               },
                               Cell: (row) => {
                                 return (
@@ -617,7 +615,7 @@ export const FiltrosSiniestros = () => {
                             {
                               Header: "Usuario",
                               minResizeWidth: 10,
-                              width: 300,
+                              width: 200,
                               filterable: false,
                               accessor: "CD_USUARIO",
                               id: "USUARIO",

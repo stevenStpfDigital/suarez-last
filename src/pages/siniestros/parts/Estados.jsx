@@ -20,12 +20,9 @@ import DBrokerText from "../../../components/DBrokerText";
 export const Estados = ({ estado, row, data, setData }) => {
   const form = useRef();
   const siniestrosData = useSelector((state) => state.estSiniestros.value);
-  //const user = useSelector((state) => state.usuarioDBroker.value);
+
   const [v3, set3] = useState(null);
   const [aux, setAux] = useState();
-  // const [fcInspeccion, setFcInspeccion] = useState(
-  //   moment(estado.fc_ult_gestion).format("YYYY-MM-DDTHH:mm")
-  // );
 
   const [EST_SINIESTRO, setEST_SINIESTRO] = useState();
   const user = useCdUser();
@@ -83,65 +80,71 @@ export const Estados = ({ estado, row, data, setData }) => {
         onSubmit={handleOnSubmit}
       >
         {({ resetForm, submitForm, setFieldValue, values, isSubmitting }) => (
-          <div className="row ">
-            <div className="col-4">
-              <Select
-                menuPortalTarget={document.body}
-                value={v3}
-                options={siniestrosData}
-                getOptionLabel={(option) => option.DSC_ESTADO}
-                getOptionValue={(option) => option.CD_EST_SINIESTRO}
-                onChange={(valueSelect) => {
-                  setEST_SINIESTRO(valueSelect.DSC_ESTADO);
-                  setFieldValue(
-                    "cd_estado_siniestro",
-                    valueSelect.CD_EST_SINIESTRO
-                  );
-                  setAux(true);
-                  set3(valueSelect);
-                  // setValuePrioridad(valueSelect);
-                }}
-              />
-            </div>
-
-            <div className="col-4">
-              <UqaiField
-                component={DBrokerText}
-                type="text"
-                name={"txt"}
-                className={"form-control"}
-                placeholder={estado.obs_est_siniestro}
-              />
-            </div>
-            <div className="col-4 d-flex align-items-center">
-              <div>
-                <p className="m-0">
-                  {moment(estado.fc_ult_gestion).format("YYYY-MM-DDTHH:mm")}
-                </p>
-              </div>
-            </div>
-
-            {aux && (
-              <div className="row">
-                <button
-                  className="btn  mr-2 col-6"
-                  onClick={submitForm}
-                  disabled={isSubmitting}
-                >
-                  <i className="icon-uqai uqai-estado-aprobado text-alternative "></i>
-                </button>
-                <button
-                  className="btn col-6 "
-                  onClick={() => {
-                    set3(estadoObj);
-                    setAux(false);
-                    resetForm(resetForm);
+          <div className="container">
+            <div className="row  ">
+              <div className="col-4">
+                <Select
+                  menuPortalTarget={document.body}
+                  value={v3}
+                  options={siniestrosData}
+                  getOptionLabel={(option) => option.DSC_ESTADO}
+                  getOptionValue={(option) => option.CD_EST_SINIESTRO}
+                  onChange={(valueSelect) => {
+                    setEST_SINIESTRO(valueSelect.DSC_ESTADO);
+                    setFieldValue(
+                      "cd_estado_siniestro",
+                      valueSelect.CD_EST_SINIESTRO
+                    );
+                    setAux(true);
+                    set3(valueSelect);
+                    // setValuePrioridad(valueSelect);
                   }}
-                >
-                  <i className="icon-uqai uqai-cerrar text-danger"></i>
-                </button>
+                />
               </div>
-            )}
+
+              <div className="col-4 ">
+                <UqaiField
+                  component={DBrokerText}
+                  type="text"
+                  name={"txt"}
+                  className={"form-control"}
+                  placeholder={estado.obs_est_siniestro}
+                />
+              </div>
+              <div className="col-4 d-flex align-items-center">
+                <div>
+                  <p className="m-0">
+                    {estado.fc_ult_gestion
+                      ? moment(estado.fc_ult_gestion)
+                          .locale("es")
+                          .format("DD/MM/YYYY HH:mm:ss")
+                      : ""}
+                  </p>
+                </div>
+              </div>
+
+              {aux && (
+                <div className="row">
+                  <button
+                    className="btn  mr-2 col-6"
+                    onClick={submitForm}
+                    disabled={isSubmitting}
+                  >
+                    <i className="icon-uqai uqai-estado-aprobado text-alternative "></i>
+                  </button>
+                  <button
+                    className="btn col-6 "
+                    onClick={() => {
+                      set3(estadoObj);
+                      setAux(false);
+                      resetForm(resetForm);
+                    }}
+                  >
+                    <i className="icon-uqai uqai-cerrar text-danger"></i>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </UqaiFormik>

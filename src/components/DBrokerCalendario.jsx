@@ -7,6 +7,7 @@ const DBrokerCalendario = ({
   showInternalMessage = true,
   includeTime = false,
   autoSaveCallback,
+  keepValues,
   ...props
 }) => {
   const { name, value } = field;
@@ -25,6 +26,11 @@ const DBrokerCalendario = ({
     setFieldTouched(name, true);
     if (autoSaveCallback) {
       autoSaveCallback(value);
+    }
+    if (keepValues) {
+      keepValues({
+        [name]: value,
+      });
     }
   };
   const hasError = errors[name] && touched[name];

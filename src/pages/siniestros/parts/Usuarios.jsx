@@ -4,7 +4,6 @@ import Select from "react-select";
 import { useSelector } from "react-redux";
 import axios from "axios";
 
-
 const Usuarios = ({ usuario }) => {
   const form = useRef();
   const usuariosData = useSelector((state) => state.usuario.value);
@@ -50,47 +49,49 @@ const Usuarios = ({ usuario }) => {
         onSubmit={handleOnSubmit}
       >
         {({ resetForm, submitForm, setFieldValue, isSubmitting }) => (
-          <div className="row ">
-            <Select
-              className="col-12"
-              menuPortalTarget={document.body}
-              value={v3}
-              options={usuariosData}
-              getOptionLabel={(option) => option.NOMBRE}
-              getOptionValue={(option) => option.USUARIO}
-              onChange={(valueSelect) => {
-                setFieldValue("cdUsuario", valueSelect.USUARIO);
-                setAux(true);
-                set3(valueSelect);
-              }}
-              styles={{
-                control: (provided) => ({
-                  ...provided,
-                  width: 200,
-                }),
-              }}
-            />
-            {aux && (
-              <div className="row">
-                <button
-                  className="btn  mr-2 col-6"
-                  onClick={submitForm}
-                  disabled={isSubmitting}
-                >
-                  <i className="icon-uqai uqai-estado-aprobado text-alternative "></i>
-                </button>
-                <button
-                  className="btn col-6 "
-                  onClick={() => {
-                    set3(usuariObj);
-                    setAux(false);
-                    resetForm(resetForm);
-                  }}
-                >
-                  <i className="icon-uqai uqai-cerrar text-danger"></i>
-                </button>
-              </div>
-            )}
+          <div className="container">
+            <div className="row ">
+              <Select
+                className="col-12"
+                menuPortalTarget={document.body}
+                value={v3}
+                options={usuariosData}
+                getOptionLabel={(option) => option.NOMBRE}
+                getOptionValue={(option) => option.USUARIO}
+                onChange={(valueSelect) => {
+                  setFieldValue("cdUsuario", valueSelect.USUARIO);
+                  setAux(true);
+                  set3(valueSelect);
+                }}
+                // styles={{
+                //   control: (provided) => ({
+                //     ...provided,
+                //     width: 200,
+                //   }),
+                // }}
+              />
+              {aux && (
+                <div className="row">
+                  <button
+                    className="btn  mr-2 col-6"
+                    onClick={submitForm}
+                    disabled={isSubmitting}
+                  >
+                    <i className="icon-uqai uqai-estado-aprobado text-alternative "></i>
+                  </button>
+                  <button
+                    className="btn col-6 "
+                    onClick={() => {
+                      set3(usuariObj);
+                      setAux(false);
+                      resetForm(resetForm);
+                    }}
+                  >
+                    <i className="icon-uqai uqai-cerrar text-danger"></i>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </UqaiFormik>

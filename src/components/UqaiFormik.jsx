@@ -52,7 +52,7 @@ export default class UqaiFormik extends React.Component {
   handleSubmitProxy = (values, formikActions) => {
     const { onSubmit } = this.props;
     const newValues = this.decodeValues(values);
-
+ 
     onSubmit(newValues, formikActions);
   };
 

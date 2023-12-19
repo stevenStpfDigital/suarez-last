@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import UqaiFormik from "../../../components/UqaiFormik";
 import moment from "moment";
 import { UqaiField } from "../../../components/UqaiField";
@@ -7,16 +7,17 @@ import axios from "axios";
 import { formatFieldValue } from "../utils";
 
 const FcOcurrencia = ({ fcOcurrencia }) => {
-  const form = useRef();
-  const handleOnSubmit = (newValues, actions) => {};
-  const [v3, set3] = useState(null);
+  const [fcOCurrenciaMoment, setFcOcurrenciaMoment] = useState(
+    moment(fcOcurrencia.fcOcurrencia).format("YYYY-MM-DD")
+  );
+
   const [aux, setAux] = useState(false);
   let autoSaveTimeout;
   const autoSaveFcOcurrencia = (value) => {
     clearTimeout(autoSaveTimeout);
     autoSaveTimeout = setTimeout(() => {
       if (!value) return;
-      // console.log("IN?: ", value);
+
       const obj = {
         cdReclamo: fcOcurrencia.cdReclamo,
         cdSucursal: fcOcurrencia.cdSucursal,
@@ -34,41 +35,39 @@ const FcOcurrencia = ({ fcOcurrencia }) => {
     }, 1000);
   };
 
+  useEffect(() => {
+    setFcOcurrenciaMoment(
+      moment(fcOcurrencia.fcOcurrencia).format("YYYY-MM-DD")
+    );
+  }, [fcOcurrencia.fcOcurrencia]);
+
+  const handleChange = (e) => {
+    const { value } = e.target;
+    setFcOcurrenciaMoment(value);
+    autoSaveFcOcurrencia(value);
+  };
+
   return (
     <>
-      <UqaiFormik
-        validateOnChange={false}
-        ref={form}
-        initialValues={{
-          fc_ocurrencia: moment(fcOcurrencia.fcOcurrencia),
-        }}
-        onSubmit={handleOnSubmit}
-      >
-        {({ resetForm, submitForm, setFieldValue, values, isSubmitting }) => {
-      
-          return (
-            <div className="container">
-              <div className="row justify-content-center">
-                <div className="col-12">
-                  <UqaiField
-                    component={DBrokerCalendario}
-                    type="date"
-                    name={"fc_ocurrencia"}
-                    className={"form-control"}
-                    placeholder={"DD/MM/AAAA"}
-                    autoSaveCallback={autoSaveFcOcurrencia}
-                  />
-                  {aux && (
-                    <div className="text-center mt-1">
-                      <b>Fc. Actualizada</b>
-                    </div>
-                  )}
-                </div>
+      <div className="container">
+        <div className="row justify-content-center">
+          <div className="col-12">
+            <input
+              className="form-control"
+              placeholder="DD/MM/AAAA"
+              type={"date"}
+              onChange={handleChange}
+              value={fcOCurrenciaMoment}
+            />
+
+            {aux && (
+              <div className="text-center mt-1">
+                <b>Fc. Actualizada</b>
               </div>
-            </div>
-          );
-        }}
-      </UqaiFormik>
+            )}
+          </div>
+        </div>
+      </div>
     </>
   );
 };

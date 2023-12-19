@@ -15,7 +15,7 @@ function actualDate() {
   return date;
 }
 
-export const defaultNuevoSiniestroFilter = () => {
+export const defaultNuevoSiniestroFilter = (user) => {
   return {
     cdCliente: "%",
     poliza: null,
@@ -26,7 +26,7 @@ export const defaultNuevoSiniestroFilter = () => {
     cdEstado: "%",
     cdRamo: "%",
     cdSucursal: "%",
-    cdUsuario: "%",
+    cdUsuario: user || "%",
     fcIngreso: firstDayMonth(),
     fcEvento: firstDayMonth(),
     fcRecepcion: firstDayMonth(),
@@ -189,4 +189,42 @@ export const formatFieldValue = (value) => moment(value).format(backFormat);
 export const isVam = (value) => {
   const lowerRamo = value.toLowerCase();
   return lowerRamo.includes("vida") || lowerRamo.includes("medica");
+};
+
+export const customSortMethodDate = (a, b, desc) => {
+
+  const dateA = new Date(
+    parseInt(a.split("/")[2]),
+    parseInt(a.split("/")[1]) - 1,
+    parseInt(a.split("/")[0])
+  );
+
+  const dateB = new Date(
+    parseInt(b.split("/")[2]),
+    parseInt(b.split("/")[1]) - 1,
+    parseInt(b.split("/")[0])
+  );
+
+  // Descartar null o undefined
+  if (dateA === null || dateA === undefined) {
+    //return desc ? 1 : -1;
+    return -1;
+  }
+
+  if (dateB === null || dateB === undefined) {
+    // return desc ? -1 : 1;
+    return 1;
+  }
+
+  // Comparar fechas
+  if (dateA > dateB) {
+    return 1;
+  }
+
+  if (dateA < dateB) {
+    return -1;
+  }
+
+  // Devolver 0 o undefined para usar cualquier método de ordenación adicional
+  return 0;
 };

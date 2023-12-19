@@ -30,7 +30,7 @@ const ModalNuevoSiniestro = ({
   loadOptionsDiagnostico,
 }) => {
   const [newSiniestroValues, setNewSiniestroValues] = useState(
-    defaultNuevoSiniestro
+    defaultNuevoSiniestro()
   );
 
   const [valuePolizaSelect, setValuePolizaSelect] = useState(null);
@@ -39,6 +39,8 @@ const ModalNuevoSiniestro = ({
   const [valueAseguradoraSelect, setValueAseguradoraSelect] = useState(null);
   const [valueRamoSelect, setValueRamoSelect] = useState(null);
   const [valueAseguradoSelect, setValueAseguradoSelect] = useState(null);
+  const [valuePlacaSelect, setValuePlacaSelect] = useState(null);
+  const [valueTallerSelect, setValueTallerSelect] = useState(null);
   const [placaSelect, setPlacaSelect] = useState([]);
   const [inputPlaca, setInputPlaca] = useState(null);
   const [cdClienteAux, setCdClienteAux] = useState(null);
@@ -54,7 +56,10 @@ const ModalNuevoSiniestro = ({
   const [polizaOptions, setPolizaOptions] = useState([]);
   const [aseguradoOptions, setAseguradoOptions] = useState([]);
   const [isVamResult, setIsVamResult] = useState(false);
-  const [resultNewSiniestro, setResultNewSiniestro] = useState(false);
+  const [resultNewSiniestro, setResultNewSiniestro] = useState({
+    state: false,
+    response: null,
+  });
   const [financiamientoModal, setFinanciamientoModal] = useState(false);
   const [valueDiagnosticoSelect, setValueDiagnosticoSelect] = useState(null);
   const aseguradorasData = useSelector((state) => state.aseguradoras.value);
@@ -63,6 +68,8 @@ const ModalNuevoSiniestro = ({
   const aseguradoraProperties = ["ID", "CD_ASEGURADORA"];
   const ramoProperties = ["CD_RAMO", "CD_RAMO"];
   const sucursalProperties = ["ID", "CD_COMPANIA"];
+
+  const [errors, setErrors] = useState(false);
 
   const user = useCdUser();
 
@@ -103,20 +110,13 @@ const ModalNuevoSiniestro = ({
   }, [valuePolizaSelect, cdSucursalAux, cdClienteAux, inputPlaca]);
 
   useEffect(() => {
-    const newValues = {
-      ram_cot: valuePolizaSelect?.CD_RAMO_COTIZACION,
-      cdSucursal: valuePolizaSelect?.CD_COMPANIA,
-      ramoNM: nombreRamoAux,
-    };
-    if (
-      valuePolizaSelect &&
-      valuePolizaSelect.CD_RAMO_COTIZACION &&
-      valuePolizaSelect.CD_COMPANIA &&
-      nombreRamoAux
-    ) {
+    if (valuePolizaSelect) {
+      const newValues = {
+        ram_cot: valuePolizaSelect?.CD_RAMO_COTIZACION,
+        cdSucursal: valuePolizaSelect?.CD_COMPANIA || cdSucursalAux,
+        ramoNM: nombreRamoAux || "%",
+      };
       searchDataAsegurados(newValues);
-    } else {
-      searchDataAsegurados([]);
     }
   }, [cdSucursalAux, nombreRamoAux, valuePolizaSelect]);
   useEffect(() => {
@@ -127,16 +127,20 @@ const ModalNuevoSiniestro = ({
   }, [nombreRamoAux]);
 
   useEffect(() => {
-    if (resultNewSiniestro) {
-      const timeoutId = setTimeout(resetResult, 3000);
+    if (resultNewSiniestro.state) {
+      const timeoutId = setTimeout(resetResult, 3500);
       return () => clearTimeout(timeoutId);
     }
   }, [resultNewSiniestro]);
 
   const resetResult = () => {
-    setResultNewSiniestro(false);
+    setResultNewSiniestro({
+      state: false,
+      response: null,
+    });
   };
   const filterByValue = (value, array, property) => {
+    if (!value) return null;
     return array.filter((item) => item[property] === value);
   };
 
@@ -202,9 +206,7 @@ const ModalNuevoSiniestro = ({
         { label: "Producción", options: filterSucursales.included },
         { label: "Sucursal", options: filterSucursales.excluded },
       ]);
-    } catch (error) {
-      console.error("Error: ", error);
-    }
+    } catch (error) {}
   };
 
   const searchDataPoliza = async (values) => {
@@ -213,6 +215,7 @@ const ModalNuevoSiniestro = ({
         `${process.env.REACT_APP_API_URL}/polizas`,
         values
       );
+
       setPolizaOptions(response.data);
     } catch (error) {}
   };
@@ -223,15 +226,29 @@ const ModalNuevoSiniestro = ({
         values
       );
 
-      const arrayDeObjetos = Object.keys(response.data).map((clave) => {
-        return { value: response.data[clave], label: response.data[clave] };
-      });
+      const formattData = response.data.map((res) => ({
+        value: res?.CD_ASEGURADO || null,
+        label: res.ASEGURADO,
+      }));
 
-      setAseguradoOptions(arrayDeObjetos);
-    } catch (error) {}
+      setAseguradoOptions(formattData);
+    } catch (error) {
+      setAseguradoOptions([]);
+      setValueAseguradoSelect(null);
+    }
   };
 
-  const onSubmit = async (newValues, actions, resetForm) => {
+  const onSubmit = async (newValues, actions) => {
+    if (
+      !valueClienteSelect ||
+      !valueAseguradoraSelect ||
+      !valueSucursalSelect
+    ) {
+      setErrors(true);
+      actions.setSubmitting(false);
+      return;
+    }
+
     let values = { ...newValues };
     values.fcRecepcion = formatFieldValue(values.fcRecepcion);
     values.fcEvento = formatFieldValue(values.fcEvento);
@@ -240,14 +257,35 @@ const ModalNuevoSiniestro = ({
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/nuevoSiniestro`,
+
         values
       );
-      setResultNewSiniestro(true);
+
+      if (response.data.as_error) {
+        setResultNewSiniestro({
+          state: true,
+          response: response.data.as_error,
+        });
+        setNewSiniestroValues(defaultNuevoSiniestro());
+        setValueClienteSelect(null);
+        setValueAseguradoraSelect(null);
+        setValueRamoSelect(null);
+        setValuePolizaSelect(null);
+        setValueAseguradoSelect(null);
+        setValueSucursalSelect(null);
+        setValueDiagnosticoSelect(null);
+        setValuePlacaSelect(null);
+        setValueTallerSelect(null);
+      }
+      // console.log("NEWSINIESTRO: ", newSiniestroValues);
       actions.setSubmitting(false);
     } catch (error) {}
   };
   const handleResetForm = (resetForm) => {
-    resetForm();
+    resetForm({
+      values: newSiniestroValues, // Aquí proporciona tus valores iniciales
+      errors: {}, // Puedes proporcionar errores iniciales si es necesario
+    });
   };
 
   const setStaticOptionsSelect = () => {
@@ -266,14 +304,13 @@ const ModalNuevoSiniestro = ({
         <UqaiFormik
           onSubmit={onSubmit}
           initialValues={newSiniestroValues}
-          validateOnChange={true}
+          // validateOnChange={true}
           enableReinitialize={true}
           handleResetForm={handleResetForm}
           ref={form}
-          validationSchema={v_nuevoSiniestro}
+          // validationSchema={v_nuevoSiniestro}
         >
           {({ resetForm, submitForm, values, isSubmitting, setFieldValue }) => {
-  
             return (
               <div className="row my-3">
                 <div className="col-2">
@@ -290,6 +327,27 @@ const ModalNuevoSiniestro = ({
                     loadOptions={loadOptionsClientes}
                     onChange={(valueSelect) => {
                       if (!valueSelect) {
+                        setFieldValue("cdAseguradora", null);
+                        setFieldValue("cdSucursal", null);
+                        setFieldValue("cdRamo", null);
+                        setFieldValue("poliza", null);
+                        setFieldValue("nmAsegurado", null);
+                        setFieldValue("tpDiagnostico", null);
+                        setFieldValue("nmDiagnostico", null);
+                        setFieldValue("placa", null);
+                        setFieldValue("cdTaller", null);
+                        setFieldValue("cdFactAseg", null);
+                        setFieldValue("cdAnexo", null);
+                        setFieldValue("nmRamo", null);
+                        setFieldValue("cdAsegurado", null);
+                        setFieldValue("cdDiagnostico", null);
+                        setValueAseguradoSelect(null);
+                        setValueRamoSelect(null);
+                        setAseguradoOptions([]);
+                        setValueAseguradoraSelect(null);
+                        setValueDiagnosticoSelect(null);
+                        setValueSucursalSelect(null);
+
                         setFinanciamientoModal(false);
                         setValuePolizaSelect(null);
                       }
@@ -298,6 +356,11 @@ const ModalNuevoSiniestro = ({
                       setCdClienteAux(valueSelect?.value);
                     }}
                   />
+                  {!valueClienteSelect && errors && (
+                    <span className={"invalid-feedback d-block"}>
+                      Campo obligatorio
+                    </span>
+                  )}
                 </div>
                 <div className="col-2">
                   <label className="form-label fw-bold text-secondary fs-7">
@@ -317,6 +380,11 @@ const ModalNuevoSiniestro = ({
                       setValueAseguradoraSelect(valueSelect);
                     }}
                   />
+                  {!valueAseguradoraSelect && errors && (
+                    <span className={"invalid-feedback d-block"}>
+                      Campo obligatorio
+                    </span>
+                  )}
                 </div>
                 <div className="col-2">
                   <label className="form-label fw-bold text-secondary fs-7">
@@ -400,6 +468,8 @@ const ModalNuevoSiniestro = ({
                       setValuePolizaSelect(valueSelect);
                       if (!valueSelect) {
                         setValuePolizaSelect(null);
+                        setFieldValue("nmAsegurado", "");
+                        setFieldValue("cdAsegurado", "");
                       }
 
                       setFieldValue("poliza", valueSelect?.POLIZA);
@@ -427,8 +497,8 @@ const ModalNuevoSiniestro = ({
                     value={valueAseguradoSelect}
                     options={aseguradoOptions}
                     onChange={(valueSelect) => {
-                      setFieldValue("nmAsegurado", valueSelect?.value);
-                      if (valueSelect.__isNew__) {
+                      setFieldValue("nmAsegurado", valueSelect?.label);
+                      if (valueSelect?.__isNew__) {
                         setFieldValue("cdAsegurado", 0);
                       } else {
                         setFieldValue("cdAsegurado", valueSelect?.value);
@@ -501,6 +571,11 @@ const ModalNuevoSiniestro = ({
                       // setValuePrioridad(valueSelect);
                     }}
                   />
+                  {!valueSucursalSelect && errors && (
+                    <span className={"invalid-feedback d-block"}>
+                      Campo obligatorio
+                    </span>
+                  )}
                 </div>
                 <div className="col-2">
                   <label className="form-label fw-bold text-secondary fs-7">
@@ -553,12 +628,13 @@ const ModalNuevoSiniestro = ({
                   <Select
                     placeholder="Placa-item"
                     isClearable
+                    value={valuePlacaSelect}
                     options={placaSelect}
                     onInputChange={setInputPlaca}
                     getOptionLabel={(option) => option.PLACA}
                     getOptionValue={(option) => option.PLACA}
                     onChange={(valueSelect) => {
-               
+                      setValuePlacaSelect(valueSelect);
                       setValuePolizaSelect(valueSelect);
                       setFieldValue("placa", valueSelect?.PLACA);
                       setFieldValue("poliza", valueSelect?.POLIZA);
@@ -566,12 +642,25 @@ const ModalNuevoSiniestro = ({
                       setFieldValue("cdAnexo", valueSelect?.ANEXO);
                       setFieldValue("cdSucursal", valueSelect?.CD_COMPANIA);
                       setFieldValue("cdCliente", valueSelect?.CD_CLIENTE);
-                      setFieldValue("cdAsegurado", valueSelect?.ASEGURADO);
+                      // setFieldValue("cdAsegurado", valueSelect?.ASEGURADO);
+                      setFieldValue("nmAsegurado", valueSelect?.ASEGURADO);
                       setFieldValue("cdRC", valueSelect?.CD_RAMO_COTIZACION);
                       setFieldValue(
                         "cdAseguradora",
                         valueSelect?.CD_ASEGURADORA
                       );
+                      const selectRamo = filterByValue(
+                        valueSelect?.CD_RAMO,
+                        ramosData,
+                        "CD_RAMO"
+                      );
+                      if (selectRamo) {
+                        setFieldValue("cdRamo", selectRamo[0].CD_RAMO);
+                        setFieldValue("nmRamo", selectRamo[0].NM_RAMO);
+                      } else {
+                        setFieldValue("cdRamo", null);
+                        setFieldValue("nmRamo", null);
+                      }
 
                       const selectSucursal = filterByValue(
                         valueSelect?.CD_COMPANIA,
@@ -583,26 +672,25 @@ const ModalNuevoSiniestro = ({
                         aseguradorasData,
                         "ID"
                       );
-                      const selectRamo = filterByValue(
-                        valueSelect?.CD_RAMO,
-                        ramosData,
-                        "CD_RAMO"
-                      );
-                      setFieldValue("cdRamo", selectRamo?.CD_RAMO);
-                      setFieldValue("nmRamo", selectRamo?.NM_RAMO);
 
                       setValueSucursalSelect(selectSucursal);
-                      // setValueClienteSelect(getCliente(valueSelect.))
                       setValueAseguradoraSelect(selectAseguradora);
                       setValueRamoSelect(selectRamo);
-                      setValueAseguradoSelect({
-                        label: valueSelect?.ASEGURADO,
-                        value: valueSelect?.ASEGURADO,
-                      });
-                      setValueClienteSelect({
-                        value: valueSelect?.CD_CLIENTE,
-                        label: valueSelect?.CLIENTE,
-                      });
+
+                      if (valueSelect) {
+                        setValueClienteSelect({
+                          value: valueSelect?.CD_CLIENTE,
+                          label: valueSelect?.CLIENTE,
+                        });
+                        setValueAseguradoSelect({
+                          label: valueSelect?.ASEGURADO,
+                          value: valueSelect?.ASEGURADO,
+                        });
+                      } else {
+                        setValueClienteSelect(null);
+                        setValueAseguradoSelect(null);
+                        setAseguradoOptions([]);
+                      }
                     }}
                   />
                 </div>
@@ -615,6 +703,7 @@ const ModalNuevoSiniestro = ({
                     // value={v8}
                     // defaultValue={selectsData.taller[0]}
                     placeholder={"Taller"}
+                    value={valueTallerSelect}
                     options={selectsData.taller}
                     getOptionLabel={(option) => option.DSC_TALLER}
                     getOptionValue={(option) => option.CD_TALLER}
@@ -675,9 +764,12 @@ const ModalNuevoSiniestro = ({
             valuePolizaSelect={valuePolizaSelect}
           />
         )}
-        {resultNewSiniestro && (
-          <div class=" d-flex justify-content-center">
-            <b>Respuesta exitosa</b>
+        {resultNewSiniestro.state && (
+          <div className=" d-flex justify-content-center">
+            <p className="fs-5">
+              Respuesta exitosa Siniestro{" "}
+              <b> Nº {resultNewSiniestro.response} </b>
+            </p>
           </div>
         )}
       </ModalBody>
