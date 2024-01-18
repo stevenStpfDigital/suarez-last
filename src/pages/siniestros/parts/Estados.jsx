@@ -118,7 +118,7 @@ export const Estados = ({ estado, row, data, setData }) => {
                       ? moment(estado.fc_ult_gestion)
                           .locale("es")
                           .format("DD/MM/YYYY HH:mm:ss")
-                      : ""}
+                      : ""}                   
                   </p>
                 </div>
               </div>

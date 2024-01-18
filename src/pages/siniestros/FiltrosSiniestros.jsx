@@ -3,6 +3,7 @@ import PagesDBroker from "../../layout/PagesDBroker";
 import { Card, CardBody, CardHeader } from "reactstrap";
 import {
   PRIORIDAD_INTERVALES,
+  TITULAR_DEPENDIENTE,
   customSortMethodDate,
   debounce,
   defaultNuevoSiniestroFilter,
@@ -246,7 +247,7 @@ export const FiltrosSiniestros = () => {
       ...rest
     } = queryDbroker;
 
-    //console.log("QUERY: ", rest);
+   
     const endpoint =
       queryDbroker.cdUsuario === "" ? "SiniestrosAsignar" : "Siniestros";
     try {
@@ -254,7 +255,8 @@ export const FiltrosSiniestros = () => {
         `${process.env.REACT_APP_API_URL}/${endpoint}`,
         rest
       );
-    
+
+      
 
       setData({
         data: response.data || [],
@@ -286,6 +288,7 @@ export const FiltrosSiniestros = () => {
 
   const priorityClassName = (data) => {
     const daysDifference = calcularDiferenciaEnDias(data.FC_CREACION);
+
     const valueVam = isVam(data.NM_RAMO);
     const prioridades = valueVam
       ? data.SUBAREA === "MASIVOS"
@@ -383,10 +386,8 @@ export const FiltrosSiniestros = () => {
                           setOpen={setNewSiniestro}
                           form={form}
                           selectsData={{
-                            aseguradora: aseguradoraSiniestro,
-                            sucursal: sucursalSiniestro,
-                            ramos: ramos,
                             taller: tallerSiniestro,
+                            titular: TITULAR_DEPENDIENTE,
                           }}
                           loadOptionsClientes={loadOptionsNew}
                           loadOptionsDiagnostico={loadOptionsNewDiagnostico}
@@ -444,12 +445,13 @@ export const FiltrosSiniestros = () => {
                               filterable: false,
                               sortMethod: customSortMethodDate,
                               accessor: (d) => {
-                                return !d.FC_RECEPCION_BRK
-                                  ? ""
+                                return !d.FC_RECPCION_BRK
+                                  ? null
                                   : moment(d.FC_RECPCION_BRK).format(
                                       "DD/MM/YYYY"
                                     );
                               },
+
                               id: "FECHA_RECEPCION",
                               width: 120,
                             },
@@ -588,7 +590,7 @@ export const FiltrosSiniestros = () => {
                             {
                               Header: "Fc. Ocurrencia",
                               minResizeWidth: 10,
-                            
+
                               width: 180,
                               filterable: false,
                               sortMethod: customSortMethodDate,

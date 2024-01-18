@@ -1,6 +1,6 @@
 import React from "react";
 
-const DBrokerText = ({ field, form, keepValues, ...props }) => {
+const DBrokerText = ({ field, form, keepValues, type, ...props }) => {
   const { name, value } = field;
   const { setFieldValue, setFieldTouched } = form;
   const handleChange = (e) => {
@@ -16,6 +16,7 @@ const DBrokerText = ({ field, form, keepValues, ...props }) => {
   return (
     <>
       <input
+        type={type ? type : "text"}
         {...field}
         {...props}
         onChange={handleChange}

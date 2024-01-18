@@ -15,6 +15,7 @@ import {
   defaultNuevoSiniestro,
   formatFieldValue,
   isVam,
+  isVehiculo,
   v_nuevoSiniestro,
 } from "../utils";
 import useCdUser from "../../../hooks/useCdUser";
@@ -41,6 +42,7 @@ const ModalNuevoSiniestro = ({
   const [valueAseguradoSelect, setValueAseguradoSelect] = useState(null);
   const [valuePlacaSelect, setValuePlacaSelect] = useState(null);
   const [valueTallerSelect, setValueTallerSelect] = useState(null);
+  const [valueTitularSelect, setValueTitularSelect] = useState(null);
   const [placaSelect, setPlacaSelect] = useState([]);
   const [inputPlaca, setInputPlaca] = useState(null);
   const [cdClienteAux, setCdClienteAux] = useState(null);
@@ -56,6 +58,7 @@ const ModalNuevoSiniestro = ({
   const [polizaOptions, setPolizaOptions] = useState([]);
   const [aseguradoOptions, setAseguradoOptions] = useState([]);
   const [isVamResult, setIsVamResult] = useState(false);
+  const [isVehiculosResult, setIsVehiculosResult] = useState(true);
   const [resultNewSiniestro, setResultNewSiniestro] = useState({
     state: false,
     response: null,
@@ -120,8 +123,13 @@ const ModalNuevoSiniestro = ({
     }
   }, [cdSucursalAux, nombreRamoAux, valuePolizaSelect]);
   useEffect(() => {
-    if (!nombreRamoAux) return;
+    if (!nombreRamoAux) {
+      setIsVamResult(false);
+      setIsVehiculosResult(true);
+      return;
+    }
     setIsVamResult(isVam(nombreRamoAux));
+    setIsVehiculosResult(isVehiculo(nombreRamoAux));
     // if (nombreRamoAux.toLowerCase().includes("desgravamen")) {
     // }
   }, [nombreRamoAux]);
@@ -254,10 +262,10 @@ const ModalNuevoSiniestro = ({
     values.fcEvento = formatFieldValue(values.fcEvento);
     values.usuario = user;
 
+
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/nuevoSiniestro`,
-
         values
       );
 
@@ -266,6 +274,7 @@ const ModalNuevoSiniestro = ({
           state: true,
           response: response.data.as_error,
         });
+        setAseguradoOptions([]);
         setNewSiniestroValues(defaultNuevoSiniestro());
         setValueClienteSelect(null);
         setValueAseguradoraSelect(null);
@@ -276,6 +285,11 @@ const ModalNuevoSiniestro = ({
         setValueDiagnosticoSelect(null);
         setValuePlacaSelect(null);
         setValueTallerSelect(null);
+        setValueTitularSelect(null);
+        setCdClienteAux(null);
+        setCdAseguradoraAux(null);
+        setCdRamoAux(null);
+        setCdSucursalAux(null);
       }
       // console.log("NEWSINIESTRO: ", newSiniestroValues);
       actions.setSubmitting(false);
@@ -498,7 +512,7 @@ const ModalNuevoSiniestro = ({
                     options={aseguradoOptions}
                     onChange={(valueSelect) => {
                       setFieldValue("nmAsegurado", valueSelect?.label);
-                      if (valueSelect?.__isNew__) {
+                      if (valueSelect && valueSelect.__isNew__) {
                         setFieldValue("cdAsegurado", 0);
                       } else {
                         setFieldValue("cdAsegurado", valueSelect?.value);
@@ -512,11 +526,19 @@ const ModalNuevoSiniestro = ({
                     <label className="form-label fw-bold text-secondary fs-7">
                       Titular-Dependiente:
                     </label>
-                    <UqaiField
-                      type="text"
-                      name={"cdAsegurado"}
-                      className={"form-control"}
-                      placeholder={"Titular-Dependiente"}
+                    <Select
+                      // value={v8}
+                      // defaultValue={selectsData.taller[0]}
+                      isClearable
+                      placeholder={"Tipo"}
+                      value={valueTitularSelect}
+                      options={selectsData.titular}
+                      onChange={(valueSelect) => {
+                        setValueTitularSelect(valueSelect);
+                        setFieldValue("tpAsegurado", valueSelect?.value);
+                        //set8(valueSelect);
+                        // setValuePrioridad(valueSelect);
+                      }}
                     />
                   </div>
                 )}
@@ -621,99 +643,108 @@ const ModalNuevoSiniestro = ({
                     }}
                   />
                 </div>
-                <div className="col-2">
-                  <label className="form-label fw-bold text-secondary fs-7">
-                    Placa-item:
-                  </label>
-                  <Select
-                    placeholder="Placa-item"
-                    isClearable
-                    value={valuePlacaSelect}
-                    options={placaSelect}
-                    onInputChange={setInputPlaca}
-                    getOptionLabel={(option) => option.PLACA}
-                    getOptionValue={(option) => option.PLACA}
-                    onChange={(valueSelect) => {
-                      setValuePlacaSelect(valueSelect);
-                      setValuePolizaSelect(valueSelect);
-                      setFieldValue("placa", valueSelect?.PLACA);
-                      setFieldValue("poliza", valueSelect?.POLIZA);
-                      setFieldValue("cdFactAseg", valueSelect?.FACT_ASEG);
-                      setFieldValue("cdAnexo", valueSelect?.ANEXO);
-                      setFieldValue("cdSucursal", valueSelect?.CD_COMPANIA);
-                      setFieldValue("cdCliente", valueSelect?.CD_CLIENTE);
-                      // setFieldValue("cdAsegurado", valueSelect?.ASEGURADO);
-                      setFieldValue("nmAsegurado", valueSelect?.ASEGURADO);
-                      setFieldValue("cdRC", valueSelect?.CD_RAMO_COTIZACION);
-                      setFieldValue(
-                        "cdAseguradora",
-                        valueSelect?.CD_ASEGURADORA
-                      );
-                      const selectRamo = filterByValue(
-                        valueSelect?.CD_RAMO,
-                        ramosData,
-                        "CD_RAMO"
-                      );
-                      if (selectRamo) {
-                        setFieldValue("cdRamo", selectRamo[0].CD_RAMO);
-                        setFieldValue("nmRamo", selectRamo[0].NM_RAMO);
-                      } else {
-                        setFieldValue("cdRamo", null);
-                        setFieldValue("nmRamo", null);
-                      }
+                {isVehiculosResult && (
+                  <>
+                    <div className="col-2">
+                      <label className="form-label fw-bold text-secondary fs-7">
+                        Placa-item:
+                      </label>
+                      <Select
+                        placeholder="Placa-item"
+                        isClearable
+                        value={valuePlacaSelect}
+                        options={placaSelect}
+                        onInputChange={setInputPlaca}
+                        getOptionLabel={(option) => option.PLACA}
+                        getOptionValue={(option) => option.PLACA}
+                        onChange={(valueSelect) => {
+                          setValuePlacaSelect(valueSelect);
+                          setValuePolizaSelect(valueSelect);
+                          setFieldValue("placa", valueSelect?.PLACA);
+                          setFieldValue("poliza", valueSelect?.POLIZA);
+                          setFieldValue("cdFactAseg", valueSelect?.FACT_ASEG);
+                          setFieldValue("cdAnexo", valueSelect?.ANEXO);
+                          setFieldValue("cdSucursal", valueSelect?.CD_COMPANIA);
+                          setFieldValue("cdCliente", valueSelect?.CD_CLIENTE);
+                          // setFieldValue("cdAsegurado", valueSelect?.ASEGURADO);
+                          setFieldValue("nmAsegurado", valueSelect?.ASEGURADO);
+                          setFieldValue(
+                            "cdRC",
+                            valueSelect?.CD_RAMO_COTIZACION
+                          );
+                          setFieldValue(
+                            "cdAseguradora",
+                            valueSelect?.CD_ASEGURADORA
+                          );
+                          const selectRamo = filterByValue(
+                            valueSelect?.CD_RAMO,
+                            ramosData,
+                            "CD_RAMO"
+                          );
+                          if (selectRamo) {
+                            setFieldValue("cdRamo", selectRamo[0].CD_RAMO);
+                            setFieldValue("nmRamo", selectRamo[0].NM_RAMO);
+                          } else {
+                            setFieldValue("cdRamo", null);
+                            setFieldValue("nmRamo", null);
+                          }
 
-                      const selectSucursal = filterByValue(
-                        valueSelect?.CD_COMPANIA,
-                        sucursalData,
-                        "ID"
-                      );
-                      const selectAseguradora = filterByValue(
-                        valueSelect?.CD_ASEGURADORA,
-                        aseguradorasData,
-                        "ID"
-                      );
+                          const selectSucursal = filterByValue(
+                            valueSelect?.CD_COMPANIA,
+                            sucursalData,
+                            "ID"
+                          );
+                          const selectAseguradora = filterByValue(
+                            valueSelect?.CD_ASEGURADORA,
+                            aseguradorasData,
+                            "ID"
+                          );
 
-                      setValueSucursalSelect(selectSucursal);
-                      setValueAseguradoraSelect(selectAseguradora);
-                      setValueRamoSelect(selectRamo);
+                          setValueSucursalSelect(selectSucursal);
+                          setValueAseguradoraSelect(selectAseguradora);
+                          setValueRamoSelect(selectRamo);
 
-                      if (valueSelect) {
-                        setValueClienteSelect({
-                          value: valueSelect?.CD_CLIENTE,
-                          label: valueSelect?.CLIENTE,
-                        });
-                        setValueAseguradoSelect({
-                          label: valueSelect?.ASEGURADO,
-                          value: valueSelect?.ASEGURADO,
-                        });
-                      } else {
-                        setValueClienteSelect(null);
-                        setValueAseguradoSelect(null);
-                        setAseguradoOptions([]);
-                      }
-                    }}
-                  />
-                </div>
-                <div className="col-2">
-                  <label className="form-label fw-bold text-secondary fs-7">
-                    Taller:
-                  </label>
+                          if (valueSelect) {
+                            setValueClienteSelect({
+                              value: valueSelect?.CD_CLIENTE,
+                              label: valueSelect?.CLIENTE,
+                            });
+                            setValueAseguradoSelect({
+                              label: valueSelect?.ASEGURADO,
+                              value: valueSelect?.ASEGURADO,
+                            });
+                          } else {
+                            setValueClienteSelect(null);
+                            setValueAseguradoSelect(null);
+                            setAseguradoOptions([]);
+                          }
+                        }}
+                      />
+                    </div>
+                    <div className="col-2">
+                      <label className="form-label fw-bold text-secondary fs-7">
+                        Taller:
+                      </label>
 
-                  <Select
-                    // value={v8}
-                    // defaultValue={selectsData.taller[0]}
-                    placeholder={"Taller"}
-                    value={valueTallerSelect}
-                    options={selectsData.taller}
-                    getOptionLabel={(option) => option.DSC_TALLER}
-                    getOptionValue={(option) => option.CD_TALLER}
-                    onChange={(valueSelect) => {
-                      setFieldValue("cdTaller", valueSelect?.CD_TALLER);
-                      //set8(valueSelect);
-                      // setValuePrioridad(valueSelect);
-                    }}
-                  />
-                </div>
+                      <Select
+                        // value={v8}
+                        // defaultValue={selectsData.taller[0]}
+                        placeholder={"Taller"}
+                        value={valueTallerSelect}
+                        options={selectsData.taller}
+                        getOptionLabel={(option) => option.DSC_TALLER}
+                        getOptionValue={(option) => option.CD_TALLER}
+                        onChange={(valueSelect) => {
+                          setValueTallerSelect(valueSelect);
+                          setFieldValue("cdTaller", valueSelect?.CD_TALLER);
+                          //set8(valueSelect);
+                          // setValuePrioridad(valueSelect);
+                        }}
+                      />
+                    </div>
+                  </>
+                )}
+
                 <div className="d-flex justify-content-end col-12  mt-3  ">
                   <div className="d-flex col-3 justify-content-between ">
                     <div>

@@ -64,6 +64,7 @@ export const defaultNuevoSiniestro = () => {
     nmRamo: null,
     cdAsegurado: null,
     cdDiagnostico: null,
+    tpAsegurado: null,
   };
 };
 
@@ -128,6 +129,10 @@ export const PRIORIDAD_SELECTS = [
   { color: "#FFEC0F", value: 1, label: "MEDIA" },
   { color: "#FF1C1C", value: 2, label: "ALTA" },
 ];
+export const TITULAR_DEPENDIENTE = [
+  { value: "TITULAR", label: "TITULAR" },
+  { value: "DEPENDIENTE", label: "DEPENDIENTE" },
+];
 
 export const AUX_CHECK_CONTROLLER = [
   "checkFcIngreso",
@@ -187,34 +192,42 @@ export const backFormat = "DD/MM/YYYY";
 export const formatFieldValue = (value) => moment(value).format(backFormat);
 
 export const isVam = (value) => {
+  if (!value) return false;
   const lowerRamo = value.toLowerCase();
   return lowerRamo.includes("vida") || lowerRamo.includes("medica");
 };
+export const isVehiculo = (value) => {
+  const lowerRamo = value.toLowerCase();
+  return lowerRamo.includes("vehiculo");
+};
 
 export const customSortMethodDate = (a, b, desc) => {
+  if (!a) {
+    return 1;
+  }
 
-  const dateA = new Date(
-    parseInt(a.split("/")[2]),
-    parseInt(a.split("/")[1]) - 1,
-    parseInt(a.split("/")[0])
-  );
-
-  const dateB = new Date(
-    parseInt(b.split("/")[2]),
-    parseInt(b.split("/")[1]) - 1,
-    parseInt(b.split("/")[0])
-  );
-
-  // Descartar null o undefined
-  if (dateA === null || dateA === undefined) {
-    //return desc ? 1 : -1;
+  if (!b) {
     return -1;
   }
 
-  if (dateB === null || dateB === undefined) {
-    // return desc ? -1 : 1;
-    return 1;
-  }
+  // Convertir fechas
+  const dateA = a
+    ? new Date(
+        parseInt(a.split("/")[2]),
+        parseInt(a.split("/")[1]) - 1,
+        parseInt(a.split("/")[0])
+      )
+    : null;
+
+  const dateB = b
+    ? new Date(
+        parseInt(b.split("/")[2]),
+        parseInt(b.split("/")[1]) - 1,
+        parseInt(b.split("/")[0])
+      )
+    : null;
+
+  // Descartar null o undefined
 
   // Comparar fechas
   if (dateA > dateB) {

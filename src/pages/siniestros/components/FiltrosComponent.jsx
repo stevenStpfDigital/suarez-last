@@ -38,17 +38,14 @@ const FiltrosSideBarComponent = ({
   const form = useRef();
   const user = useCdUser();
 
-
   useEffect(() => {
     //setNewQuery(defaultNuevoSiniestroFilter());
-
 
     const currentUser = getCurrentUserDBroker();
     if (currentUser) {
       set5(currentUser);
       setNewQuery((prev) => ({ ...prev, cdUsuario: currentUser.USUARIO }));
     }
-    
   }, []);
   const getCurrentUserDBroker = () => {
     const currentUser = selectsData.usuariosD.find(
@@ -106,7 +103,6 @@ const FiltrosSideBarComponent = ({
                     values,
                     isSubmitting,
                   }) => {
-
                     return (
                       <div className="row gy-3">
                         <div className="col-12">
@@ -151,6 +147,8 @@ const FiltrosSideBarComponent = ({
                             Nº:
                           </label>
                           <UqaiField
+                            component={DBrokerText}
+                            keepValues={keepValuesState}
                             type="number"
                             name={"numSiniestro"}
                             className={"form-control"}
